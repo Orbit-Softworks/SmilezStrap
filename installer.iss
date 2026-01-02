@@ -1,5 +1,5 @@
 #define MyAppName "SmilezStrap"
-#define MyAppVersion "1.0.1"
+#define MyAppVersion "1.0.2"
 #define MyAppPublisher "Orbit Softworks"
 #define MyAppURL "https://github.com/Orbit-Softworks/SmilezStrap"
 #define MyAppExeName "SmilezStrap.exe"
