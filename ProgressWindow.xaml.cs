@@ -122,118 +122,136 @@ namespace SmilezStrap
         }
 
         private async Task LaunchFFlag()
+{
+    var token = cancellationTokenSource.Token;
+    UpdateStatus("Initializing FFlag Injector...");
+    SetProgress(5);
+    await Task.Delay(500, token);
+    token.ThrowIfCancellationRequested();
+
+    string appDataPath = IOPath.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SmilezStrap", "FFlag");
+    Directory.CreateDirectory(appDataPath);
+
+    UpdateStatus("Checking for updates...");
+    SetProgress(15);
+    
+    try
+    {
+        var response = await httpClient.GetStringAsync($"https://api.github.com/repos/{FFLAG_GITHUB_REPO}/releases/latest");
+        var releaseInfo = JsonDocument.Parse(response);
+        string? latestExeName = null;
+        string? downloadUrl = null;
+        
+        var assets = releaseInfo.RootElement.GetProperty("assets").EnumerateArray();
+        foreach (var asset in assets)
         {
-            var token = cancellationTokenSource.Token;
-            UpdateStatus("Initializing FFlag Injector...");
-            SetProgress(5);
-            await Task.Delay(500, token);
-            token.ThrowIfCancellationRequested();
-
-            string appDataPath = IOPath.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SmilezStrap", "FFlag");
-            Directory.CreateDirectory(appDataPath);
-
-            UpdateStatus("Checking for updates...");
-            SetProgress(15);
-            
-            try
+            string? name = asset.GetProperty("name").GetString();
+            if (name != null && name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
             {
-                var response = await httpClient.GetStringAsync($"https://api.github.com/repos/{FFLAG_GITHUB_REPO}/releases/latest");
-                var releaseInfo = JsonDocument.Parse(response);
-                string? latestExeName = null;
-                string? downloadUrl = null;
-                
-                var assets = releaseInfo.RootElement.GetProperty("assets").EnumerateArray();
-                foreach (var asset in assets)
-                {
-                    string? name = asset.GetProperty("name").GetString();
-                    if (name != null && name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-                    {
-                        latestExeName = name;
-                        downloadUrl = asset.GetProperty("browser_download_url").GetString();
-                        break;
-                    }
-                }
-
-                if (string.IsNullOrEmpty(latestExeName) || string.IsNullOrEmpty(downloadUrl))
-                {
-                    throw new Exception("Could not find FFlag Injector executable in latest release");
-                }
-
-                token.ThrowIfCancellationRequested();
-
-                string targetExePath = IOPath.Combine(appDataPath, latestExeName);
-                var existingFiles = Directory.GetFiles(appDataPath, "*.exe");
-                
-                bool needsDownload = false;
-                
-                if (existingFiles.Length == 0)
-                {
-                    needsDownload = true;
-                    UpdateStatus("FFlag Injector not found, downloading...");
-                }
-                else
-                {
-                    string existingExeName = IOPath.GetFileName(existingFiles[0]);
-                    if (existingExeName != latestExeName)
-                    {
-                        needsDownload = true;
-                        UpdateStatus("New version found, updating...");
-                        
-                        foreach (var file in existingFiles)
-                        {
-                            try { File.Delete(file); } catch { }
-                        }
-                    }
-                }
-
-                if (needsDownload)
-                {
-                    SetProgress(25);
-                    var downloadProgress = new Progress<int>(p =>
-                    {
-                        UpdateStatus($"Downloading FFlag Injector... {p}%");
-                        SetProgress(25 + (p * 60 / 100));
-                    });
-                    
-                    await DownloadFile(downloadUrl, targetExePath, downloadProgress, token);
-                    token.ThrowIfCancellationRequested();
-                    SetProgress(85);
-                    await Task.Delay(500, token);
-                }
-                else
-                {
-                    targetExePath = existingFiles[0];
-                    SetProgress(70);
-                }
-
-                UpdateStatus("Launching FFlag Injector...");
-                SetProgress(90);
-                await Task.Delay(500, token);
-                token.ThrowIfCancellationRequested();
-
-                if (!File.Exists(targetExePath))
-                {
-                    throw new Exception("FFlag Injector executable not found after download");
-                }
-
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = targetExePath,
-                    UseShellExecute = true,
-                    WorkingDirectory = appDataPath
-                });
-
-                SetProgress(100);
-                await Task.Delay(800, token);
-                ShowCompletion(true);
-                await Task.Delay(1500);
-                this.Close();
+                latestExeName = name;
+                downloadUrl = asset.GetProperty("browser_download_url").GetString();
+                break;
             }
-            catch (Exception ex)
+        }
+
+        if (string.IsNullOrEmpty(latestExeName) || string.IsNullOrEmpty(downloadUrl))
+        {
+            throw new Exception("Could not find FFlag Injector executable in latest release");
+        }
+
+        token.ThrowIfCancellationRequested();
+
+        string targetExePath = IOPath.Combine(appDataPath, latestExeName);
+        var existingFiles = Directory.GetFiles(appDataPath, "*.exe");
+        
+        bool needsDownload = false;
+        
+        if (existingFiles.Length == 0)
+        {
+            needsDownload = true;
+            UpdateStatus("FFlag Injector not found, downloading...");
+        }
+        else
+        {
+            string existingExeName = IOPath.GetFileName(existingFiles[0]);
+            if (existingExeName != latestExeName)
+            {
+                needsDownload = true;
+                UpdateStatus("New version found, updating...");
+                
+                foreach (var file in existingFiles)
+                {
+                    try { File.Delete(file); } catch { }
+                }
+            }
+        }
+
+        if (needsDownload)
+        {
+            SetProgress(25);
+            var downloadProgress = new Progress<int>(p =>
+            {
+                UpdateStatus($"Downloading FFlag Injector... {p}%");
+                SetProgress(25 + (p * 60 / 100));
+            });
+            
+            await DownloadFile(downloadUrl, targetExePath, downloadProgress, token);
+            token.ThrowIfCancellationRequested();
+            SetProgress(85);
+            await Task.Delay(500, token);
+        }
+        else
+        {
+            targetExePath = existingFiles[0];
+            SetProgress(70);
+        }
+
+        UpdateStatus("Launching FFlag Injector...");
+        SetProgress(90);
+        await Task.Delay(500, token);
+        token.ThrowIfCancellationRequested();
+
+        if (!File.Exists(targetExePath))
+        {
+            throw new Exception("FFlag Injector executable not found after download");
+        }
+
+        ProcessStartInfo startInfo = new ProcessStartInfo
+        {
+            FileName = targetExePath,
+            UseShellExecute = true,
+            WorkingDirectory = appDataPath,
+            Verb = "runas"
+        };
+
+        try
+        {
+            Process.Start(startInfo);
+        }
+        catch (System.ComponentModel.Win32Exception ex)
+        {
+           
+            if (ex.NativeErrorCode == 1223)
+            {
+                throw new Exception("Administrator privileges are required to run FFlag Injector. Please accept the UAC prompt.");
+            }
+            else
             {
                 throw new Exception($"Failed to launch FFlag Injector: {ex.Message}");
             }
         }
+
+        SetProgress(100);
+        await Task.Delay(800, token);
+        ShowCompletion(true);
+        await Task.Delay(1500);
+        this.Close();
+    }
+    catch (Exception ex)
+    {
+        throw new Exception($"Failed to launch FFlag Injector: {ex.Message}");
+    }
+}
 
         private async Task LaunchRoblox()
         {
