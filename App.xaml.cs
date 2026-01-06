@@ -20,24 +20,24 @@ namespace SmilezStrap
 
             if (e.Args.Length > 0)
             {
-                foreach (string arg in e.Args)
+                string fullArgs = string.Join(" ", e.Args);
+                
+                if (fullArgs.Contains("roblox://", StringComparison.OrdinalIgnoreCase) ||
+                    fullArgs.Contains("roblox-player:", StringComparison.OrdinalIgnoreCase) ||
+                    fullArgs.Contains("placeId", StringComparison.OrdinalIgnoreCase) ||
+                    fullArgs.Contains("gameId", StringComparison.OrdinalIgnoreCase) ||
+                    fullArgs.Contains("launchmode", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (arg.Contains("roblox://", StringComparison.OrdinalIgnoreCase) ||
-                        arg.Contains("roblox-player://", StringComparison.OrdinalIgnoreCase) ||
-                        arg.Contains("placeId", StringComparison.OrdinalIgnoreCase) ||
-                        arg.Contains("gameId", StringComparison.OrdinalIgnoreCase))
-                    {
-                        isProtocolLaunch = true;
-                        HandleProtocolLaunch(arg, false);
-                        return;
-                    }
-                    else if (arg.Contains("roblox-studio://", StringComparison.OrdinalIgnoreCase) ||
-                             arg.Contains("studio", StringComparison.OrdinalIgnoreCase))
-                    {
-                        isProtocolLaunch = true;
-                        HandleProtocolLaunch(arg, true);
-                        return;
-                    }
+                    isProtocolLaunch = true;
+                    HandleProtocolLaunch(fullArgs, false);
+                    return;
+                }
+                else if (fullArgs.Contains("roblox-studio:", StringComparison.OrdinalIgnoreCase) ||
+                         fullArgs.Contains("studio", StringComparison.OrdinalIgnoreCase))
+                {
+                    isProtocolLaunch = true;
+                    HandleProtocolLaunch(fullArgs, true);
+                    return;
                 }
             }
 
@@ -67,87 +67,50 @@ namespace SmilezStrap
                 string exePath = Process.GetCurrentProcess().MainModule?.FileName ?? "";
                 if (string.IsNullOrEmpty(exePath)) return;
 
-                string robloxPlayerPath = "";
-                try
-                {
-                    using (var key = Registry.CurrentUser.OpenSubKey(@"Software\Classes\roblox-player\shell\open\command"))
-                    {
-                        if (key != null)
-                        {
-                            string originalCommand = key.GetValue("")?.ToString() ?? "";
-                            if (!originalCommand.Contains("SmilezStrap"))
-                            {
-                                using (var backupKey = Registry.CurrentUser.CreateSubKey(@"Software\Classes\roblox-player-original\shell\open\command"))
-                                {
-                                    backupKey.SetValue("", originalCommand);
-                                }
-                            }
-                        }
-                    }
-                }
-                catch { }
-
-                using (var key = Registry.CurrentUser.CreateSubKey(@"Software\Classes\roblox-player"))
-                {
-                    key.SetValue("", "URL:Roblox Protocol");
-                    key.SetValue("URL Protocol", "");
-                    key.SetValue("EditFlags", 2, RegistryValueKind.DWord);
-
-                    using (var iconKey = key.CreateSubKey("DefaultIcon"))
-                    {
-                        string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                        string versionsPath = Path.Combine(localAppData, "Roblox", "Versions");
-                        if (Directory.Exists(versionsPath))
-                        {
-                            var versionDirs = Directory.GetDirectories(versionsPath)
-                                .Where(d => File.Exists(Path.Combine(d, "RobloxPlayerBeta.exe")))
-                                .OrderByDescending(d => Directory.GetCreationTime(d))
-                                .ToList();
-                            if (versionDirs.Any())
-                            {
-                                string robloxExe = Path.Combine(versionDirs.First(), "RobloxPlayerBeta.exe");
-                                iconKey.SetValue("", $"\"{robloxExe}\",0");
-                            }
-                        }
-                    }
-
-                    using (var commandKey = key.CreateSubKey(@"shell\open\command"))
-                    {
-                        commandKey.SetValue("", $"\"{exePath}\" \"%1\"");
-                    }
-                }
-
-                using (var key = Registry.CurrentUser.CreateSubKey(@"Software\Classes\roblox"))
-                {
-                    key.SetValue("", "URL:Roblox Protocol");
-                    key.SetValue("URL Protocol", "");
-                    key.SetValue("EditFlags", 2, RegistryValueKind.DWord);
-
-                    using (var iconKey = key.CreateSubKey("DefaultIcon"))
-                    {
-                        string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                        string versionsPath = Path.Combine(localAppData, "Roblox", "Versions");
-                        if (Directory.Exists(versionsPath))
-                        {
-                            var versionDirs = Directory.GetDirectories(versionsPath)
-                                .Where(d => File.Exists(Path.Combine(d, "RobloxPlayerBeta.exe")))
-                                .OrderByDescending(d => Directory.GetCreationTime(d))
-                                .ToList();
-                            if (versionDirs.Any())
-                            {
-                                string robloxExe = Path.Combine(versionDirs.First(), "RobloxPlayerBeta.exe");
-                                iconKey.SetValue("", $"\"{robloxExe}\",0");
-                            }
-                        }
-                    }
-
-                    using (var commandKey = key.CreateSubKey(@"shell\open\command"))
-                    {
-                        commandKey.SetValue("", $"\"{exePath}\" \"%1\"");
-                    }
-                }
+                RegisterProtocol("roblox-player", exePath);
+                
+                RegisterProtocol("roblox", exePath);
             }
             catch (Exception)
+            {
+            }
+        }
+
+        private void RegisterProtocol(string protocol, string exePath)
+        {
+            try
+            {
+                using (var key = Registry.CurrentUser.CreateSubKey($@"Software\Classes\{protocol}"))
+                {
+                    key?.SetValue("", $"URL:{protocol} Protocol");
+                    key?.SetValue("URL Protocol", "");
+                    key?.SetValue("EditFlags", 2, RegistryValueKind.DWord);
+                }
+
+                using (var key = Registry.CurrentUser.CreateSubKey($@"Software\Classes\{protocol}\DefaultIcon"))
+                {
+                    string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                    string versionsPath = Path.Combine(localAppData, "Roblox", "Versions");
+                    if (Directory.Exists(versionsPath))
+                    {
+                        var versionDirs = Directory.GetDirectories(versionsPath)
+                            .Where(d => File.Exists(Path.Combine(d, "RobloxPlayerBeta.exe")))
+                            .OrderByDescending(d => Directory.GetCreationTime(d))
+                            .ToList();
+                        if (versionDirs.Any())
+                        {
+                            string robloxExe = Path.Combine(versionDirs.First(), "RobloxPlayerBeta.exe");
+                            key?.SetValue("", $"\"{robloxExe}\",0");
+                        }
+                    }
+                }
+
+                using (var key = Registry.CurrentUser.CreateSubKey($@"Software\Classes\{protocol}\shell\open\command"))
+                {
+                    key?.SetValue("", $"\"{exePath}\" \"%1\"");
+                }
+            }
+            catch
             {
             }
         }
