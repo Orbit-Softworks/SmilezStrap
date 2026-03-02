@@ -51,9 +51,8 @@ namespace SmilezStrap
             
             HomeView.Visibility = Visibility.Visible;
             SettingsView.Visibility = Visibility.Collapsed;
-            ModsView.Visibility = Visibility.Collapsed;
             AboutView.Visibility = Visibility.Collapsed;
-            UpdateMenuButtonState(HomeButton, SettingsButton, ModsButton, AboutButton);
+            UpdateMenuButtonState(HomeButton, SettingsButton, AboutButton);
             
             CheckForUpdatesOnStartup();
             LoadAboutContent();
@@ -456,22 +455,7 @@ namespace SmilezStrap
 
         private void About_Click(object sender, RoutedEventArgs e)
         {
-            AnimateToTab(2, AboutView, AboutViewTransform, AboutButton, HomeButton, SettingsButton, ModsButton);
-        }
-
-        private void ModsButton_Click(object sender, RoutedEventArgs e)
-        {
-            AnimateToTab(3, ModsView, ModsViewTransform, ModsButton, HomeButton, SettingsButton, AboutButton);
-        }
-
-        public void OpenModsView()
-        {
-            if (ModsView != null)
-            {
-                this.Show();
-                this.Activate();
-                AnimateToTab(3, ModsView, ModsViewTransform, ModsButton, HomeButton, SettingsButton, AboutButton);
-            }
+            AnimateToTab(2, AboutView, AboutViewTransform, AboutButton, HomeButton, SettingsButton);
         }
 
         private void VisitGitHub_Click(object sender, RoutedEventArgs e)
@@ -497,12 +481,12 @@ namespace SmilezStrap
 
         private void HomeButton_Click(object? sender, RoutedEventArgs? e)
         {
-            AnimateToTab(0, HomeView, HomeViewTransform, HomeButton, SettingsButton, ModsButton, AboutButton);
+            AnimateToTab(0, HomeView, HomeViewTransform, HomeButton, SettingsButton, AboutButton);
         }
 
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            AnimateToTab(1, SettingsView, SettingsViewTransform, SettingsButton, HomeButton, ModsButton, AboutButton);
+            AnimateToTab(1, SettingsView, SettingsViewTransform, SettingsButton, HomeButton, AboutButton);
         }
 
         private async void AnimateToTab(int newTabIndex, UIElement newView, TranslateTransform newTransform, Button activeButton, params Button[] inactiveButtons)
@@ -528,10 +512,6 @@ namespace SmilezStrap
                 case 2:
                     currentView = AboutView;
                     currentTransform = AboutViewTransform;
-                    break;
-                case 3:
-                    currentView = ModsView;
-                    currentTransform = ModsViewTransform;
                     break;
                 default:
                     currentView = HomeView;
@@ -577,13 +557,13 @@ namespace SmilezStrap
 
         private void UpdateMenuButtonState(Button activeButton, params Button[] inactiveButtons)
         {
-            activeButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2A2A2A"));
-            activeButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF4444"));
+            activeButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#121212"));
+            activeButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF0000"));
             
             foreach (var button in inactiveButtons)
             {
                 button.Background = Brushes.Transparent;
-                button.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#999"));
+                button.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CCCCCC"));
             }
         }
 
@@ -605,14 +585,6 @@ namespace SmilezStrap
         {
             this.Hide();
             var progressWindow = new ProgressWindow(true, config, null);
-            progressWindow.Closed += (s, args) => this.Show();
-            progressWindow.Show();
-        }
-
-        private async void LaunchModManager_Click(object sender, RoutedEventArgs e)
-        {
-            this.Hide();
-            var progressWindow = new ProgressWindow(false, config, null, true);
             progressWindow.Closed += (s, args) => this.Show();
             progressWindow.Show();
         }
