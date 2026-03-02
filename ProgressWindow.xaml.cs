@@ -19,7 +19,6 @@ namespace SmilezStrap
         private CancellationTokenSource cancellationTokenSource = null!;
         private bool isCompleted = false;
         private bool isStudio = false;
-        private bool isModManager = false;
         private Config? config;
         private string? protocolUrl = null;
         private Process? robloxProcess = null;
@@ -28,23 +27,17 @@ namespace SmilezStrap
         private const string ROBLOX_DOWNLOAD_URL = "https://www.roblox.com/download/client?os=win";
         private const string STUDIO_DOWNLOAD_URL = "https://setup.rbxcdn.com/RobloxStudioInstaller.exe";
 
-        public ProgressWindow(bool launchStudio = false, Config? appConfig = null, string? gameUrl = null, bool launchModManager = false)
+        public ProgressWindow(bool launchStudio = false, Config? appConfig = null, string? gameUrl = null)
         {
             InitializeComponent();
             isStudio = launchStudio;
-            isModManager = launchModManager;
             config = appConfig;
             protocolUrl = gameUrl;
             cancellationTokenSource = new CancellationTokenSource();
             
             httpClient.DefaultRequestHeaders.Add("User-Agent", "SmilezStrap");
             
-            if (isModManager)
-            {
-                TitleText.Text = "Mod Manager";
-                TitleIcon.Text = "🔧";
-            }
-            else if (isStudio)
+            if (isStudio)
             {
                 TitleText.Text = "Launching Studio";
                 TitleIcon.Text = "🛠️";
@@ -111,12 +104,7 @@ namespace SmilezStrap
                 
                 if (success)
                 {
-                    if (isModManager)
-                    {
-                        StatusText.Text = "Mod Manager launched successfully!";
-                        TitleIcon.Text = "✅";
-                    }
-                    else if (isStudio)
+                    if (isStudio)
                     {
                         StatusText.Text = "Studio launched successfully!";
                         TitleIcon.Text = "✅";
@@ -142,9 +130,7 @@ namespace SmilezStrap
         {
             try
             {
-                if (isModManager)
-                    await LaunchModManager();
-                else if (isStudio)
+                if (isStudio)
                     await LaunchStudio();
                 else
                     await LaunchRoblox();
@@ -163,35 +149,6 @@ namespace SmilezStrap
             {
                 ShowCompletion(false, ex.Message);
             }
-        }
-
-        private async Task LaunchModManager()
-        {
-            var token = cancellationTokenSource.Token;
-            
-            UpdateStatus("Initializing Mod Manager...", "", "Starting");
-            SetProgress(5);
-            await Task.Delay(300, token);
-            
-            UpdateStatus("Opening Mod Manager...", "Loading modules", "Ready");
-            SetProgress(50);
-            await Task.Delay(500, token);
-            
-            Dispatcher.Invoke(() =>
-            {
-                var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
-                if (mainWindow != null)
-                {
-                    mainWindow.Show();
-                    mainWindow.OpenModsView();
-                }
-            });
-            
-            SetProgress(100, "Done");
-            await Task.Delay(800);
-            ShowCompletion(true, "Mod Manager is ready");
-            await Task.Delay(1500);
-            this.Close();
         }
 
         private async Task LaunchRoblox()
@@ -571,8 +528,9 @@ namespace SmilezStrap
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
+                // Silently fail if settings can't be applied
             }
         }
 
@@ -640,8 +598,9 @@ namespace SmilezStrap
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
+                // Silently fail if shortcuts can't be removed
             }
         }
 
