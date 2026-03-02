@@ -7,20 +7,21 @@
         MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
    
     <Window.Resources>
-        <Color x:Key="AccentColor">#FF4444</Color>
+        <!-- AMOLED Black & Red Theme -->
+        <Color x:Key="AccentColor">#FF0000</Color>
         <Color x:Key="AccentGlow">#8B0000</Color>
-        <Color x:Key="BackgroundDark">#0F0F0F</Color>
-        <Color x:Key="BackgroundMedium">#1A1A1A</Color>
-        <Color x:Key="BackgroundLight">#252525</Color>
-        <Color x:Key="BorderColor">#333333</Color>
+        <Color x:Key="BackgroundDark">#000000</Color>
+        <Color x:Key="BackgroundMedium">#0A0A0A</Color>
+        <Color x:Key="BackgroundLight">#121212</Color>
+        <Color x:Key="BorderColor">#1E1E1E</Color>
         <Color x:Key="TextPrimary">#FFFFFF</Color>
-        <Color x:Key="TextSecondary">#999999</Color>
-        <Color x:Key="TextMuted">#666666</Color>
+        <Color x:Key="TextSecondary">#CCCCCC</Color>
+        <Color x:Key="TextMuted">#888888</Color>
 
         <Style TargetType="Slider">
-            <Setter Property="Foreground" Value="#FF4444"/>
-            <Setter Property="Background" Value="#252525"/>
-            <Setter Property="BorderBrush" Value="#333333"/>
+            <Setter Property="Foreground" Value="#FF0000"/>
+            <Setter Property="Background" Value="#121212"/>
+            <Setter Property="BorderBrush" Value="#1E1E1E"/>
             <Setter Property="Height" Value="24"/>
             <Setter Property="Margin" Value="0,8,0,0"/>
             <Setter Property="Template">
@@ -31,9 +32,9 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <Border Grid.Row="0" Background="#252525" Height="4" CornerRadius="2" Margin="0,8,0,0"/>
+                            <Border Grid.Row="0" Background="#121212" Height="4" CornerRadius="2" Margin="0,8,0,0"/>
                             <Thumb x:Name="Thumb" Grid.Row="0" Width="16" Height="16" Margin="0,2,0,0"
-                                   Background="White" BorderBrush="#FF4444" BorderThickness="2"
+                                   Background="White" BorderBrush="#FF0000" BorderThickness="2"
                                    Cursor="Hand">
                                 <Thumb.Template>
                                     <ControlTemplate>
@@ -62,8 +63,8 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0" Width="18" Height="18" CornerRadius="4" 
-                                    Background="#252525" BorderBrush="#444444" BorderThickness="1">
-                                <Border x:Name="CheckMark" Background="#FF4444" CornerRadius="3" 
+                                    Background="#121212" BorderBrush="#333333" BorderThickness="1">
+                                <Border x:Name="CheckMark" Background="#FF0000" CornerRadius="3" 
                                         Margin="2" Visibility="Collapsed"/>
                             </Border>
                             <ContentPresenter Grid.Column="1" Margin="8,0,0,0" 
@@ -80,9 +81,9 @@
         </Style>
 
         <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#252525"/>
+            <Setter Property="Background" Value="#121212"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#444444"/>
+            <Setter Property="BorderBrush" Value="#333333"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="12,8"/>
             <Setter Property="FontSize" Value="13"/>
@@ -103,7 +104,7 @@
 
         <Style x:Key="MenuButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#999"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Height" Value="40"/>
@@ -124,13 +125,13 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#252525"/>
+                    <Setter Property="Background" Value="#121212"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Background" Value="#FF4444"/>
+            <Setter Property="Background" Value="#FF0000"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="14"/>
@@ -148,19 +149,19 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF6666"/>
+                    <Setter Property="Background" Value="#FF3333"/>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#CC3333"/>
+                    <Setter Property="Background" Value="#CC0000"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="SecondaryButton" TargetType="Button">
-            <Setter Property="Background" Value="#252525"/>
+            <Setter Property="Background" Value="#121212"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#444444"/>
+            <Setter Property="BorderBrush" Value="#333333"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Padding" Value="16,8"/>
@@ -178,45 +179,45 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#333333"/>
+                    <Setter Property="Background" Value="#1E1E1E"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="#1A1A1A"/>
+            <Setter Property="Background" Value="#0A0A0A"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#333333"/>
+            <Setter Property="BorderBrush" Value="#1E1E1E"/>
             <Setter Property="Padding" Value="16"/>
         </Style>
 
         <Style x:Key="SectionHeader" TargetType="TextBlock">
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#FF4444"/>
+            <Setter Property="Foreground" Value="#FF0000"/>
             <Setter Property="Margin" Value="0,0,0,12"/>
         </Style>
     </Window.Resources>
 
     <Border Background="Transparent" Padding="10">
         <Border.Effect>
-            <DropShadowEffect Color="#FF4444" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
+            <DropShadowEffect Color="#FF0000" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
         </Border.Effect>
         
-        <Border Background="#0F0F0F" CornerRadius="12" BorderThickness="1" BorderBrush="#333333">
+        <Border Background="#000000" CornerRadius="12" BorderThickness="1" BorderBrush="#1E1E1E">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="220"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Background="#1A1A1A" CornerRadius="12,0,0,12" 
-                        BorderThickness="0,0,1,0" BorderBrush="#333333">
+                <Border Grid.Column="0" Background="#0A0A0A" CornerRadius="12,0,0,12" 
+                        BorderThickness="0,0,1,0" BorderBrush="#1E1E1E">
                     <Grid>
                         <Grid Height="70" VerticalAlignment="Top" Margin="0,20,0,0">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="🎮" FontSize="20" Foreground="#FF4444" Margin="0,0,8,0"/>
+                                <TextBlock Text="🎮" FontSize="20" Foreground="#FF0000" Margin="0,0,8,0"/>
                                 <TextBlock Text="SmilezStrap" Foreground="White" FontSize="16" FontWeight="SemiBold"/>
                             </StackPanel>
                         </Grid>
@@ -236,16 +237,6 @@
                                 </StackPanel>
                             </Button>
                             
-                            <Button Style="{StaticResource MenuButton}" x:Name="ModsButton" Click="ModsButton_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🔧" FontSize="16" Margin="0,0,12,0"/>
-                                    <TextBlock Text="Mods"/>
-                                    <Border Background="#FF4444" CornerRadius="10" Margin="8,0,0,0" Padding="6,2">
-                                        <TextBlock Text="NEW" FontSize="8" Foreground="White" FontWeight="Bold"/>
-                                    </Border>
-                                </StackPanel>
-                            </Button>
-                            
                             <Button Style="{StaticResource MenuButton}" x:Name="AboutButton" Click="About_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="ℹ️" FontSize="16" Margin="0,0,12,0"/>
@@ -262,15 +253,15 @@
                                     Click="CheckUpdatesButton_Click" 
                                     Margin="0,0,0,12"/>
                             
-                            <Border Background="#252525" CornerRadius="6" Padding="10">
+                            <Border Background="#121212" CornerRadius="6" Padding="10">
                                 <StackPanel>
                                     <TextBlock x:Name="VersionText" 
                                                Text="v1.0.70" 
-                                               Foreground="#999" 
+                                               Foreground="#CCCCCC" 
                                                FontSize="11" 
                                                HorizontalAlignment="Center"/>
                                     <TextBlock Text="ready" 
-                                               Foreground="#666" 
+                                               Foreground="#888888" 
                                                FontSize="10" 
                                                HorizontalAlignment="Center"/>
                                 </StackPanel>
@@ -283,7 +274,7 @@
                     <Grid Height="50" VerticalAlignment="Top">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0">
                             <Button Content="─" Width="40" Height="40" Background="Transparent" 
-                                    BorderThickness="0" Foreground="#999" FontSize="16" 
+                                    BorderThickness="0" Foreground="#CCCCCC" FontSize="16" 
                                     Click="MinimizeButton_Click" Cursor="Hand">
                                 <Button.Style>
                                     <Style TargetType="Button">
@@ -301,14 +292,14 @@
                                         </Setter>
                                         <Style.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#252525"/>
+                                                <Setter Property="Background" Value="#121212"/>
                                             </Trigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                             </Button>
                             <Button Content="✕" Width="40" Height="40" Background="Transparent" 
-                                    BorderThickness="0" Foreground="#999" FontSize="16" 
+                                    BorderThickness="0" Foreground="#CCCCCC" FontSize="16" 
                                     Click="CloseButton_Click" Cursor="Hand">
                                 <Button.Style>
                                     <Style TargetType="Button">
@@ -326,7 +317,7 @@
                                         </Setter>
                                         <Style.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#FF4444"/>
+                                                <Setter Property="Background" Value="#FF0000"/>
                                                 <Setter Property="Foreground" Value="White"/>
                                             </Trigger>
                                         </Style.Triggers>
@@ -344,12 +335,10 @@
                         <TextBlock Text="Welcome back!" FontSize="28" FontWeight="Light" 
                                    Foreground="White" Margin="0,0,0,4"/>
                         <TextBlock Text="What would you like to launch today?" 
-                                   FontSize="14" Foreground="#999" Margin="0,0,0,40"/>
+                                   FontSize="14" Foreground="#CCCCCC" Margin="0,0,0,40"/>
                         
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="15"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="15"/>
                                 <ColumnDefinition Width="*"/>
@@ -359,12 +348,12 @@
                                 <Button Style="{StaticResource PrimaryButton}" Height="140" 
                                         Background="Transparent" Click="LaunchRoblox_Click">
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="🎮" FontSize="48" Foreground="#FF4444" 
+                                        <TextBlock Text="🎮" FontSize="48" Foreground="#FF0000" 
                                                    HorizontalAlignment="Center" Margin="0,0,0,12"/>
                                         <TextBlock Text="Roblox" FontSize="16" FontWeight="SemiBold" 
                                                    Foreground="White" HorizontalAlignment="Center"/>
                                         <TextBlock Text="Launch Player" FontSize="12" 
-                                                   Foreground="#999" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                                   Foreground="#CCCCCC" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Button>
                             </Border>
@@ -373,26 +362,12 @@
                                 <Button Style="{StaticResource PrimaryButton}" Height="140" 
                                         Background="Transparent" Click="LaunchStudio_Click">
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="🛠️" FontSize="48" Foreground="#FF4444" 
+                                        <TextBlock Text="🛠️" FontSize="48" Foreground="#FF0000" 
                                                    HorizontalAlignment="Center" Margin="0,0,0,12"/>
                                         <TextBlock Text="Studio" FontSize="16" FontWeight="SemiBold" 
                                                    Foreground="White" HorizontalAlignment="Center"/>
                                         <TextBlock Text="Create &amp; Edit" FontSize="12" 
-                                                   Foreground="#999" HorizontalAlignment="Center" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Button>
-                            </Border>
-                            
-                            <Border Grid.Column="4" Style="{StaticResource CardStyle}" Padding="0">
-                                <Button Style="{StaticResource PrimaryButton}" Height="140" 
-                                        Background="Transparent" Click="LaunchModManager_Click">
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="🔧" FontSize="48" Foreground="#FF4444" 
-                                                   HorizontalAlignment="Center" Margin="0,0,0,12"/>
-                                        <TextBlock Text="Mod Manager" FontSize="16" FontWeight="SemiBold" 
-                                                   Foreground="White" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Manage Flags &amp; Mods" FontSize="12" 
-                                                   Foreground="#999" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                                   Foreground="#CCCCCC" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Button>
                             </Border>
@@ -408,18 +383,18 @@
                             <Border Grid.Column="0" Style="{StaticResource CardStyle}">
                                 <StackPanel>
                                     <TextBlock Text="📊 Status" FontSize="12" FontWeight="SemiBold" 
-                                               Foreground="#FF4444" Margin="0,0,0,8"/>
+                                               Foreground="#FF0000" Margin="0,0,0,8"/>
                                     <TextBlock x:Name="RobloxStatusText" Text="Roblox: Ready" 
-                                               FontSize="11" Foreground="#AAA" Margin="0,2,0,2"/>
+                                               FontSize="11" Foreground="#CCCCCC" Margin="0,2,0,2"/>
                                     <TextBlock x:Name="VersionStatusText" Text="Version: Latest" 
-                                               FontSize="11" Foreground="#888"/>
+                                               FontSize="11" Foreground="#888888"/>
                                 </StackPanel>
                             </Border>
                             
                             <Border Grid.Column="2" Style="{StaticResource CardStyle}">
                                 <StackPanel>
                                     <TextBlock Text="⚡ Quick Actions" FontSize="12" FontWeight="SemiBold" 
-                                               Foreground="#FF4444" Margin="0,0,0,8"/>
+                                               Foreground="#FF0000" Margin="0,0,0,8"/>
                                     <Button Content="Clear Cache" Style="{StaticResource SecondaryButton}" 
                                             Height="28" FontSize="11" Margin="0,0,0,6"/>
                                     <Button Content="Repair Installation" Style="{StaticResource SecondaryButton}" 
@@ -439,7 +414,7 @@
                             <StackPanel Margin="0,0,0,25">
                                 <TextBlock Text="Settings" Style="{StaticResource SectionHeader}" FontSize="24"/>
                                 <TextBlock Text="Customize your Roblox experience" 
-                                           FontSize="13" Foreground="#888"/>
+                                           FontSize="13" Foreground="#888888"/>
                             </StackPanel>
 
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
@@ -452,7 +427,7 @@
                                         <TextBlock Text="Read-Only Mode" FontSize="14" FontWeight="SemiBold" 
                                                    Foreground="White"/>
                                         <TextBlock Text="Prevent Roblox from overriding your settings" 
-                                                   Foreground="#888" FontSize="11" Margin="0,3,0,0"/>
+                                                   Foreground="#888888" FontSize="11" Margin="0,3,0,0"/>
                                     </StackPanel>
                                     <CheckBox x:Name="ReadOnlyCheckBox" Grid.Column="1" 
                                               VerticalAlignment="Center" IsChecked="False"/>
@@ -479,12 +454,12 @@
                                                 <TextBlock Text="Graphics Quality" FontSize="13" 
                                                            FontWeight="SemiBold" Foreground="White"/>
                                                 <TextBlock Text="Adjust visual fidelity" 
-                                                           Foreground="#888" FontSize="11"/>
+                                                           Foreground="#888888" FontSize="11"/>
                                             </StackPanel>
-                                            <Border Grid.Column="1" Background="#252525" 
+                                            <Border Grid.Column="1" Background="#121212" 
                                                     CornerRadius="4" Padding="6,3">
                                                 <TextBlock x:Name="GraphicsQualityValue" 
-                                                           Text="Level 1" Foreground="#FF4444" 
+                                                           Text="Level 1" Foreground="#FF0000" 
                                                            FontSize="12" FontWeight="SemiBold" 
                                                            HorizontalAlignment="Center"/>
                                             </Border>
@@ -500,7 +475,7 @@
                                     <StackPanel>
                                         <TextBlock Text="FPS Limit" FontSize="13" FontWeight="SemiBold" 
                                                    Foreground="White" Margin="0,0,0,4"/>
-                                        <TextBlock Text="Maximum framerate" Foreground="#888" 
+                                        <TextBlock Text="Maximum framerate" Foreground="#888888" 
                                                    FontSize="11" Margin="0,0,0,12"/>
                                         <TextBox x:Name="FpsLimitTextBox" Text="9999"/>
                                     </StackPanel>
@@ -526,12 +501,12 @@
                                             <StackPanel Grid.Column="0">
                                                 <TextBlock Text="UI Transparency" FontSize="13" 
                                                            FontWeight="SemiBold" Foreground="White"/>
-                                                <TextBlock Text="Menu opacity" Foreground="#888" FontSize="11"/>
+                                                <TextBlock Text="Menu opacity" Foreground="#888888" FontSize="11"/>
                                             </StackPanel>
-                                            <Border Grid.Column="1" Background="#252525" 
+                                            <Border Grid.Column="1" Background="#121212" 
                                                     CornerRadius="4" Padding="6,3">
                                                 <TextBlock x:Name="TransparencyValue" 
-                                                           Text="1.0" Foreground="#FF4444" 
+                                                           Text="1.0" Foreground="#FF0000" 
                                                            FontSize="12" FontWeight="SemiBold" 
                                                            HorizontalAlignment="Center"/>
                                             </Border>
@@ -552,7 +527,7 @@
                                             <TextBlock Text="Reduced Motion" FontSize="13" 
                                                        FontWeight="SemiBold" Foreground="White"/>
                                             <TextBlock Text="Disable menu animations" 
-                                                       Foreground="#888" FontSize="11"/>
+                                                       Foreground="#888888" FontSize="11"/>
                                         </StackPanel>
                                         <CheckBox x:Name="ReducedMotionCheckBox" Grid.Column="1" 
                                                   VerticalAlignment="Center"/>
@@ -573,7 +548,7 @@
                                     <StackPanel>
                                         <TextBlock Text="Mouse Sensitivity" FontSize="13" 
                                                    FontWeight="SemiBold" Foreground="White" Margin="0,0,0,4"/>
-                                        <TextBlock Text="Camera movement speed" Foreground="#888" 
+                                        <TextBlock Text="Camera movement speed" Foreground="#888888" 
                                                    FontSize="11" Margin="0,0,0,12"/>
                                         <TextBox x:Name="MouseSensitivityTextBox" Text="0.360000014"/>
                                     </StackPanel>
@@ -589,7 +564,7 @@
                                             <TextBlock Text="VR Mode" FontSize="13" 
                                                        FontWeight="SemiBold" Foreground="White"/>
                                             <TextBlock Text="Enable VR support" 
-                                                       Foreground="#888" FontSize="11"/>
+                                                       Foreground="#888888" FontSize="11"/>
                                         </StackPanel>
                                         <CheckBox x:Name="VREnabledCheckBox" Grid.Column="1" 
                                                   VerticalAlignment="Center"/>
@@ -606,113 +581,8 @@
                                     Margin="0,10,0,0"/>
 
                             <TextBlock Text="Changes will be applied on next launch"
-                                       Foreground="#666" FontSize="10" Margin="0,12,0,0" 
+                                       Foreground="#666666" FontSize="10" Margin="0,12,0,0" 
                                        HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </ScrollViewer>
-
-                    <ScrollViewer x:Name="ModsView" Margin="40,60,40,30" Visibility="Collapsed"
-                                  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <ScrollViewer.RenderTransform>
-                            <TranslateTransform x:Name="ModsViewTransform" Y="0"/>
-                        </ScrollViewer.RenderTransform>
-
-                        <StackPanel>
-                            <TextBlock Text="Mod Manager" Style="{StaticResource SectionHeader}" FontSize="24"/>
-                            <TextBlock Text="Replace FFlag Injector with modern mod management" 
-                                       FontSize="13" Foreground="#888" Margin="0,0,0,25"/>
-
-                            <Grid Margin="0,0,0,20">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="20">
-                                    <StackPanel>
-                                        <TextBlock Text="🎨" FontSize="32" Foreground="#FF4444" 
-                                                   HorizontalAlignment="Center" Margin="0,0,0,12"/>
-                                        <TextBlock Text="Visual Mods" FontSize="14" FontWeight="SemiBold" 
-                                                   Foreground="White" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Themes, cursors, textures" 
-                                                   FontSize="11" Foreground="#888" HorizontalAlignment="Center" 
-                                                   Margin="0,4,0,12" TextWrapping="Wrap" TextAlignment="Center"/>
-                                        <Button Content="Manage" Style="{StaticResource SecondaryButton}" 
-                                                Height="32" FontSize="12"/>
-                                    </StackPanel>
-                                </Border>
-
-                                <Border Grid.Column="2" Style="{StaticResource CardStyle}" Padding="20">
-                                    <StackPanel>
-                                        <TextBlock Text="🚩" FontSize="32" Foreground="#FF4444" 
-                                                   HorizontalAlignment="Center" Margin="0,0,0,12"/>
-                                        <TextBlock Text="FastFlags" FontSize="14" FontWeight="SemiBold" 
-                                                   Foreground="White" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Performance &amp; features" 
-                                                   FontSize="11" Foreground="#888" HorizontalAlignment="Center" 
-                                                   Margin="0,4,0,12" TextWrapping="Wrap" TextAlignment="Center"/>
-                                        <Button Content="Configure" Style="{StaticResource SecondaryButton}" 
-                                                Height="32" FontSize="12"/>
-                                    </StackPanel>
-                                </Border>
-
-                                <Border Grid.Column="4" Style="{StaticResource CardStyle}" Padding="20">
-                                    <StackPanel>
-                                        <TextBlock Text="🔊" FontSize="32" Foreground="#FF4444" 
-                                                   HorizontalAlignment="Center" Margin="0,0,0,12"/>
-                                        <TextBlock Text="Audio Mods" FontSize="14" FontWeight="SemiBold" 
-                                                   Foreground="White" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Sounds &amp; music" 
-                                                   FontSize="11" Foreground="#888" HorizontalAlignment="Center" 
-                                                   Margin="0,4,0,12" TextWrapping="Wrap" TextAlignment="Center"/>
-                                        <Button Content="Browse" Style="{StaticResource SecondaryButton}" 
-                                                Height="32" FontSize="12"/>
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-
-                            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
-                                <StackPanel>
-                                    <TextBlock Text="📦 Preset Configurations" FontSize="15" 
-                                               FontWeight="SemiBold" Foreground="White" Margin="0,0,0,12"/>
-                                    
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        
-                                        <Button Grid.Column="0" Content="Performance" 
-                                                Style="{StaticResource SecondaryButton}" 
-                                                Height="36" Margin="0,0,4,0"/>
-                                        <Button Grid.Column="1" Content="Graphics" 
-                                                Style="{StaticResource SecondaryButton}" 
-                                                Height="36" Margin="2,0,2,0"/>
-                                        <Button Grid.Column="2" Content="Balanced" 
-                                                Style="{StaticResource SecondaryButton}" 
-                                                Height="36" Margin="4,0,0,0"/>
-                                    </Grid>
-                                    
-                                    <TextBlock Text="Click a preset to apply recommended settings" 
-                                               Foreground="#666" FontSize="10" Margin="0,12,0,0"/>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Style="{StaticResource CardStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="⚙️ Custom FastFlags" FontSize="15" 
-                                               FontWeight="SemiBold" Foreground="White" Margin="0,0,0,12"/>
-                                    <TextBox Text="FFlagDebugGraphicsPreferD3D11 = True" 
-                                             Height="80" TextWrapping="Wrap" AcceptsReturn="True"
-                                             FontFamily="Consolas" FontSize="11"/>
-                                    <Button Content="Apply Custom Flags" Style="{StaticResource PrimaryButton}" 
-                                            Height="36" Margin="0,12,0,0" FontSize="12"/>
-                                </StackPanel>
-                            </Border>
                         </StackPanel>
                     </ScrollViewer>
 
@@ -728,7 +598,7 @@
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,0,15">
                                 <StackPanel>
                                     <TextBlock x:Name="AboutContentText" TextWrapping="Wrap" 
-                                               Foreground="#CCC" FontSize="12" LineHeight="20"/>
+                                               Foreground="#CCCCCC" FontSize="12" LineHeight="20"/>
                                 </StackPanel>
                             </Border>
                             
@@ -746,20 +616,20 @@
                     </ScrollViewer>
 
                     <Border x:Name="DiscordPopup" Grid.ColumnSpan="2" Background="#CC000000" Visibility="Collapsed">
-                        <Border Background="#1A1A1A" CornerRadius="12" BorderThickness="1" BorderBrush="#FF4444" 
+                        <Border Background="#0A0A0A" CornerRadius="12" BorderThickness="1" BorderBrush="#FF0000" 
                                 Width="400" Height="200" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <Border.Effect>
-                                <DropShadowEffect Color="#FF4444" BlurRadius="20" ShadowDepth="0" Opacity="0.3"/>
+                                <DropShadowEffect Color="#FF0000" BlurRadius="20" ShadowDepth="0" Opacity="0.3"/>
                             </Border.Effect>
                             <Grid>
                                 <StackPanel Margin="30" VerticalAlignment="Center">
                                     <TextBlock Text="⚠️ External Link" FontSize="18" FontWeight="SemiBold" 
-                                               Foreground="#FF4444" HorizontalAlignment="Center" Margin="0,0,0,15"/>
+                                               Foreground="#FF0000" HorizontalAlignment="Center" Margin="0,0,0,15"/>
                                     <TextBlock Text="You are about to be redirected to our Discord server." 
-                                               FontSize="13" Foreground="#CCC" TextWrapping="Wrap" 
+                                               FontSize="13" Foreground="#CCCCCC" TextWrapping="Wrap" 
                                                HorizontalAlignment="Center" Margin="0,0,0,5"/>
                                     <TextBlock Text="Are you sure you want to continue?" FontSize="13" 
-                                               Foreground="#999" TextWrapping="Wrap" HorizontalAlignment="Center" 
+                                               Foreground="#888888" TextWrapping="Wrap" HorizontalAlignment="Center" 
                                                Margin="0,0,0,20"/>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
