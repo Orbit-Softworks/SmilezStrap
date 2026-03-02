@@ -19,49 +19,67 @@ namespace SmilezStrap
         private CancellationTokenSource cancellationTokenSource = null!;
         private bool isCompleted = false;
         private bool isStudio = false;
-        private bool isFFlag = false;
+        private bool isModManager = false;
         private Config? config;
         private string? protocolUrl = null;
+        private Process? robloxProcess = null;
+        private System.Timers.Timer? processMonitorTimer;
+        
         private const string ROBLOX_DOWNLOAD_URL = "https://www.roblox.com/download/client?os=win";
         private const string STUDIO_DOWNLOAD_URL = "https://setup.rbxcdn.com/RobloxStudioInstaller.exe";
-        private const string FFLAG_GITHUB_REPO = "Orbit-Softworks/SmilezStrap-FFlag-Injector";
 
-        public ProgressWindow(bool launchStudio = false, Config? appConfig = null, string? gameUrl = null, bool launchFFlag = false)
+        public ProgressWindow(bool launchStudio = false, Config? appConfig = null, string? gameUrl = null, bool launchModManager = false)
         {
             InitializeComponent();
             isStudio = launchStudio;
-            isFFlag = launchFFlag;
+            isModManager = launchModManager;
             config = appConfig;
             protocolUrl = gameUrl;
             cancellationTokenSource = new CancellationTokenSource();
             
             httpClient.DefaultRequestHeaders.Add("User-Agent", "SmilezStrap");
-           
+            
+            if (isModManager)
+            {
+                TitleText.Text = "Mod Manager";
+                TitleIcon.Text = "🔧";
+            }
+            else if (isStudio)
+            {
+                TitleText.Text = "Launching Studio";
+                TitleIcon.Text = "🛠️";
+            }
+            else
+            {
+                TitleText.Text = "Launching Roblox";
+                TitleIcon.Text = "🎮";
+            }
+            
             Loaded += async (s, e) => await StartLaunchProcess();
+            Closed += (s, e) => processMonitorTimer?.Stop();
         }
 
-        private void UpdateStatus(string status, string detail = "")
+        private void UpdateStatus(string status, string detail = "", string stage = "")
         {
             Dispatcher.Invoke(() =>
             {
                 StatusText.Text = status;
                 DetailText.Text = detail;
+                if (!string.IsNullOrEmpty(stage))
+                    StageText.Text = stage;
             });
         }
 
-        private void SetProgress(int percent)
+        private void SetProgress(int percent, string stage = "")
         {
             Dispatcher.Invoke(() =>
             {
                 PercentText.Text = $"{percent}%";
-               
-                var targetWidth = 400.0 * (percent / 100.0);
+                if (!string.IsNullOrEmpty(stage))
+                    StageText.Text = stage;
                 
-                if (percent == 100)
-                {
-                    targetWidth = 400.0;
-                }
-               
+                var targetWidth = 440.0 * (percent / 100.0);
+                
                 var animation = new DoubleAnimation
                 {
                     To = targetWidth,
@@ -69,6 +87,16 @@ namespace SmilezStrap
                     EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
                 };
                 ProgressBarFill.BeginAnimation(WidthProperty, animation);
+                
+                if (percent < 100 && percent > 0)
+                {
+                    int secondsRemaining = (int)((100 - percent) * 0.5);
+                    TimeEstimateText.Text = $"~{secondsRemaining}s remaining";
+                }
+                else
+                {
+                    TimeEstimateText.Text = "";
+                }
             });
         }
 
@@ -79,17 +107,32 @@ namespace SmilezStrap
                 isCompleted = true;
                 CancelButton.Visibility = Visibility.Collapsed;
                 CloseButton.Visibility = Visibility.Visible;
+                GlowBorder.BeginAnimation(OpacityProperty, null);
+                
                 if (success)
                 {
-                    if (isFFlag)
-                        StatusText.Text = "FFlag Injector launched successfully!";
+                    if (isModManager)
+                    {
+                        StatusText.Text = "Mod Manager launched successfully!";
+                        TitleIcon.Text = "✅";
+                    }
+                    else if (isStudio)
+                    {
+                        StatusText.Text = "Studio launched successfully!";
+                        TitleIcon.Text = "✅";
+                    }
                     else
-                        StatusText.Text = isStudio ? "Studio launched successfully!" : "Roblox launched successfully!";
-                    SetProgress(100);
+                    {
+                        StatusText.Text = "Roblox launched successfully!";
+                        TitleIcon.Text = "✅";
+                    }
+                    SetProgress(100, "Complete");
+                    DetailText.Text = message;
                 }
                 else
                 {
                     StatusText.Text = "Error occurred";
+                    TitleIcon.Text = "❌";
                     DetailText.Text = message;
                 }
             });
@@ -99,8 +142,8 @@ namespace SmilezStrap
         {
             try
             {
-                if (isFFlag)
-                    await LaunchFFlag();
+                if (isModManager)
+                    await LaunchModManager();
                 else if (isStudio)
                     await LaunchStudio();
                 else
@@ -110,9 +153,10 @@ namespace SmilezStrap
             {
                 Dispatcher.Invoke(() =>
                 {
-                    UpdateStatus("Cancelled", "Launch process was cancelled by user");
+                    UpdateStatus("Cancelled", "Process was cancelled by user");
                     CancelButton.Visibility = Visibility.Collapsed;
                     CloseButton.Visibility = Visibility.Visible;
+                    TitleIcon.Text = "⏹️";
                 });
             }
             catch (Exception ex)
@@ -121,146 +165,69 @@ namespace SmilezStrap
             }
         }
 
-        private async Task LaunchFFlag()
+        private async Task LaunchModManager()
         {
             var token = cancellationTokenSource.Token;
-            UpdateStatus("Initializing FFlag Injector...");
-            SetProgress(5);
-            await Task.Delay(500, token);
-            token.ThrowIfCancellationRequested();
-
-            string appDataPath = IOPath.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SmilezStrap", "FFlag");
-            Directory.CreateDirectory(appDataPath);
-
-            UpdateStatus("Checking for updates...");
-            SetProgress(15);
             
-            try
+            UpdateStatus("Initializing Mod Manager...", "", "Starting");
+            SetProgress(5);
+            await Task.Delay(300, token);
+            
+            UpdateStatus("Opening Mod Manager...", "Loading modules", "Ready");
+            SetProgress(50);
+            await Task.Delay(500, token);
+            
+            Dispatcher.Invoke(() =>
             {
-                var response = await httpClient.GetStringAsync($"https://api.github.com/repos/{FFLAG_GITHUB_REPO}/releases/latest");
-                var releaseInfo = JsonDocument.Parse(response);
-                string? latestExeName = null;
-                string? downloadUrl = null;
-                
-                var assets = releaseInfo.RootElement.GetProperty("assets").EnumerateArray();
-                foreach (var asset in assets)
+                var mainWindow = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+                if (mainWindow != null)
                 {
-                    string? name = asset.GetProperty("name").GetString();
-                    if (name != null && name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-                    {
-                        latestExeName = name;
-                        downloadUrl = asset.GetProperty("browser_download_url").GetString();
-                        break;
-                    }
+                    mainWindow.Show();
+                    mainWindow.OpenModsView();
                 }
-
-                if (string.IsNullOrEmpty(latestExeName) || string.IsNullOrEmpty(downloadUrl))
-                {
-                    throw new Exception("Could not find FFlag Injector executable in latest release");
-                }
-
-                token.ThrowIfCancellationRequested();
-
-                string targetExePath = IOPath.Combine(appDataPath, latestExeName);
-                var existingFiles = Directory.GetFiles(appDataPath, "*.exe");
-                
-                bool needsDownload = false;
-                
-                if (existingFiles.Length == 0)
-                {
-                    needsDownload = true;
-                    UpdateStatus("FFlag Injector not found, downloading...");
-                }
-                else
-                {
-                    string existingExeName = IOPath.GetFileName(existingFiles[0]);
-                    if (existingExeName != latestExeName)
-                    {
-                        needsDownload = true;
-                        UpdateStatus("New version found, updating...");
-                        
-                        foreach (var file in existingFiles)
-                        {
-                            try { File.Delete(file); } catch { }
-                        }
-                    }
-                }
-
-                if (needsDownload)
-                {
-                    SetProgress(25);
-                    var downloadProgress = new Progress<int>(p =>
-                    {
-                        UpdateStatus($"Downloading FFlag Injector... {p}%");
-                        SetProgress(25 + (p * 60 / 100));
-                    });
-                    
-                    await DownloadFile(downloadUrl, targetExePath, downloadProgress, token);
-                    token.ThrowIfCancellationRequested();
-                    SetProgress(85);
-                    await Task.Delay(500, token);
-                }
-                else
-                {
-                    targetExePath = existingFiles[0];
-                    SetProgress(70);
-                }
-
-                UpdateStatus("Launching FFlag Injector...");
-                SetProgress(90);
-                await Task.Delay(500, token);
-                token.ThrowIfCancellationRequested();
-
-                if (!File.Exists(targetExePath))
-                {
-                    throw new Exception("FFlag Injector executable not found after download");
-                }
-
-                ProcessStartInfo startInfo = new ProcessStartInfo
-                {
-                    FileName = targetExePath,
-                    UseShellExecute = true,
-                    WorkingDirectory = appDataPath,
-                    Verb = "runas"
-                };
-
-                try
-                {
-                    Process.Start(startInfo);
-                }
-                catch (System.ComponentModel.Win32Exception ex)
-                {
-                    if (ex.NativeErrorCode == 1223)
-                    {
-                        throw new Exception("Administrator privileges are required to run FFlag Injector. Please accept the UAC prompt.");
-                    }
-                    else
-                    {
-                        throw new Exception($"Failed to launch FFlag Injector: {ex.Message}");
-                    }
-                }
-
-                SetProgress(100);
-                await Task.Delay(800, token);
-                ShowCompletion(true);
-                await Task.Delay(1500);
-                this.Close();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed to launch FFlag Injector: {ex.Message}");
-            }
+            });
+            
+            SetProgress(100, "Done");
+            await Task.Delay(800);
+            ShowCompletion(true, "Mod Manager is ready");
+            await Task.Delay(1500);
+            this.Close();
         }
 
         private async Task LaunchRoblox()
         {
             var token = cancellationTokenSource.Token;
-            UpdateStatus("Connecting To Roblox...");
+            
+            UpdateStatus("Checking Roblox status...", "Verifying installation", "Checking");
             SetProgress(5);
             await Task.Delay(500, token);
             token.ThrowIfCancellationRequested();
 
-            UpdateStatus("Checking version...");
+            var existingProcesses = Process.GetProcessesByName("RobloxPlayerBeta");
+            if (existingProcesses.Length > 0)
+            {
+                UpdateStatus("Roblox is already running...", "Activating existing window", "Running");
+                SetProgress(30);
+                await Task.Delay(300, token);
+                
+                foreach (var proc in existingProcesses)
+                {
+                    if (proc.MainWindowHandle != IntPtr.Zero)
+                    {
+                        SetForegroundWindow(proc.MainWindowHandle);
+                        break;
+                    }
+                }
+                
+                SetProgress(100, "Already Running");
+                await Task.Delay(800);
+                ShowCompletion(true, "Roblox was already running");
+                await Task.Delay(1500);
+                this.Close();
+                return;
+            }
+
+            UpdateStatus("Checking for updates...", "Getting latest version", "Version check");
             SetProgress(10);
             token.ThrowIfCancellationRequested();
 
@@ -270,87 +237,105 @@ namespace SmilezStrap
 
             if (needsUpdate)
             {
-                UpdateStatus("Downloading Roblox...", "This may take a few minutes");
+                UpdateStatus("Update available", $"Downloading Roblox {latestVersion}", "Downloading");
+                SetProgress(15, "Downloading");
+                
                 string tempPath = IOPath.Combine(IOPath.GetTempPath(), "SmilezStrap", "RobloxPlayerInstaller.exe");
                 Directory.CreateDirectory(IOPath.GetDirectoryName(tempPath)!);
+                
                 var downloadProgress = new Progress<int>(p =>
                 {
-                    UpdateStatus($"Downloading Roblox... {p}%");
-                    SetProgress(10 + (p * 35 / 100));
+                    int totalProgress = 15 + (p * 35 / 100);
+                    UpdateStatus($"Downloading Roblox... {p}%", $"Version {latestVersion}", "Downloading");
+                    SetProgress(totalProgress);
                 });
+                
                 await DownloadFile(ROBLOX_DOWNLOAD_URL, tempPath, downloadProgress, token);
                 token.ThrowIfCancellationRequested();
 
-                UpdateStatus("Installing Roblox...", "Please wait while Roblox is being installed");
-                SetProgress(50);
+                UpdateStatus("Installing Roblox...", "Please wait while Roblox is being installed", "Installing");
+                SetProgress(55);
+                
                 var installTask = RunInstallerSilently(tempPath);
-                int simProgress = 50;
-                while (!installTask.IsCompleted && simProgress < 75)
+                
+                int installProgress = 55;
+                while (!installTask.IsCompleted && installProgress < 75)
                 {
                     token.ThrowIfCancellationRequested();
                     await Task.Delay(500, token);
-                    simProgress += 2;
-                    SetProgress(simProgress);
+                    installProgress += 2;
+                    SetProgress(installProgress, "Installing");
                 }
+                
                 await installTask;
                 token.ThrowIfCancellationRequested();
                
-                SetProgress(75);
+                SetProgress(78, "Finalizing");
                 await Task.Delay(1000, token);
+                
                 try { File.Delete(tempPath); } catch { }
+                
                 installedVersion = GetInstalledRobloxVersion();
                 if (installedVersion == null)
                     throw new Exception("Installation failed to register.");
             }
             else
             {
+                UpdateStatus("Roblox is up to date", $"Version {installedVersion}", "Ready");
                 SetProgress(40);
-                await Task.Delay(300, token);
+                await Task.Delay(500, token);
             }
+            
             token.ThrowIfCancellationRequested();
            
-            UpdateStatus("Applying Modifications...");
-            SetProgress(needsUpdate ? 78 : 50);
+            UpdateStatus("Applying settings...", "Configuring preferences", "Configuring");
+            SetProgress(needsUpdate ? 80 : 55);
             await ApplyAllSettings();
-            await Task.Delay(800, token);
+            await Task.Delay(500, token);
            
-            UpdateStatus("Launching Roblox...");
-            SetProgress(needsUpdate ? 90 : 80);
-            await Task.Delay(600, token);
+            UpdateStatus("Launching Roblox...", "Starting game client", "Launching");
+            SetProgress(needsUpdate ? 90 : 70);
+            await Task.Delay(400, token);
+           
             if (needsUpdate)
             {
-                await Task.Delay(1500, token);
-                RemoveDesktopShortcuts();
-                await Task.Delay(1000, token);
+                await Task.Delay(500, token);
                 RemoveDesktopShortcuts();
             }
-           
-            await Task.Delay(400, token);
            
             string exePath = IOPath.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "Roblox", "Versions", installedVersion!, "RobloxPlayerBeta.exe");
+                
             if (!File.Exists(exePath))
                 throw new Exception("Roblox executable not found.");
                 
+            ProcessStartInfo startInfo;
             if (!string.IsNullOrEmpty(protocolUrl))
             {
-                Process.Start(new ProcessStartInfo
+                startInfo = new ProcessStartInfo
                 {
                     FileName = exePath,
                     Arguments = $"\"{protocolUrl}\"",
                     UseShellExecute = false
-                });
+                };
             }
             else
             {
-                Process.Start(new ProcessStartInfo(exePath) { UseShellExecute = true });
+                startInfo = new ProcessStartInfo(exePath) { UseShellExecute = true };
             }
+            
+            robloxProcess = Process.Start(startInfo);
+            
+            SetProgress(95, "Running");
+            UpdateStatus("Roblox is starting...", "Waiting for game window", "Running");
+            
+            await MonitorRobloxProcess(robloxProcess);
            
-            SetProgress(100);
+            SetProgress(100, "Complete");
             await Task.Delay(800, token);
             RemoveDesktopShortcuts();
-            ShowCompletion(true);
+            ShowCompletion(true, "Roblox is now running");
             await Task.Delay(1500);
             this.Close();
         }
@@ -358,12 +343,37 @@ namespace SmilezStrap
         private async Task LaunchStudio()
         {
             var token = cancellationTokenSource.Token;
-            UpdateStatus("Connecting To Roblox Studio...");
+            
+            UpdateStatus("Checking Studio status...", "Verifying installation", "Checking");
             SetProgress(5);
             await Task.Delay(500, token);
             token.ThrowIfCancellationRequested();
 
-            UpdateStatus("Checking version...");
+            var existingProcesses = Process.GetProcessesByName("RobloxStudioBeta");
+            if (existingProcesses.Length > 0)
+            {
+                UpdateStatus("Studio is already running...", "Activating existing window", "Running");
+                SetProgress(30);
+                await Task.Delay(300, token);
+                
+                foreach (var proc in existingProcesses)
+                {
+                    if (proc.MainWindowHandle != IntPtr.Zero)
+                    {
+                        SetForegroundWindow(proc.MainWindowHandle);
+                        break;
+                    }
+                }
+                
+                SetProgress(100, "Already Running");
+                await Task.Delay(800);
+                ShowCompletion(true, "Studio was already running");
+                await Task.Delay(1500);
+                this.Close();
+                return;
+            }
+
+            UpdateStatus("Checking for updates...", "Getting latest version", "Version check");
             SetProgress(10);
             token.ThrowIfCancellationRequested();
 
@@ -373,34 +383,44 @@ namespace SmilezStrap
 
             if (needsUpdate)
             {
-                UpdateStatus("Downloading Roblox Studio...", "This may take a few minutes");
+                UpdateStatus("Update available", $"Downloading Studio {latestVersion}", "Downloading");
+                SetProgress(15, "Downloading");
+                
                 string tempPath = IOPath.Combine(IOPath.GetTempPath(), "SmilezStrap", "RobloxStudioInstaller.exe");
                 Directory.CreateDirectory(IOPath.GetDirectoryName(tempPath)!);
+                
                 var downloadProgress = new Progress<int>(p =>
                 {
-                    UpdateStatus($"Downloading Studio... {p}%");
-                    SetProgress(10 + (p * 40 / 100));
+                    int totalProgress = 15 + (p * 45 / 100);
+                    UpdateStatus($"Downloading Studio... {p}%", $"Version {latestVersion}", "Downloading");
+                    SetProgress(totalProgress);
                 });
+                
                 await DownloadFile(STUDIO_DOWNLOAD_URL, tempPath, downloadProgress, token);
                 token.ThrowIfCancellationRequested();
 
-                UpdateStatus("Installing Roblox Studio...", "Please wait while Studio is being installed");
-                SetProgress(55);
+                UpdateStatus("Installing Studio...", "Please wait while Studio is being installed", "Installing");
+                SetProgress(65);
+                
                 var installTask = RunInstallerSilently(tempPath);
-                int simProgress = 55;
-                while (!installTask.IsCompleted && simProgress < 85)
+                
+                int installProgress = 65;
+                while (!installTask.IsCompleted && installProgress < 85)
                 {
                     token.ThrowIfCancellationRequested();
                     await Task.Delay(500, token);
-                    simProgress += 2;
-                    SetProgress(simProgress);
+                    installProgress += 2;
+                    SetProgress(installProgress, "Installing");
                 }
+                
                 await installTask;
                 token.ThrowIfCancellationRequested();
                
-                SetProgress(85);
+                SetProgress(88, "Finalizing");
                 await Task.Delay(1000, token);
+                
                 try { File.Delete(tempPath); } catch { }
+                
                 for (int i = 0; i < 5; i++)
                 {
                     token.ThrowIfCancellationRequested();
@@ -408,31 +428,33 @@ namespace SmilezStrap
                     if (installedVersion != null) break;
                     await Task.Delay(1000, token);
                 }
+                
                 if (installedVersion == null)
                     throw new Exception("Studio installation completed but version not detected.");
             }
             else
             {
+                UpdateStatus("Studio is up to date", $"Version {installedVersion}", "Ready");
                 SetProgress(50);
-                await Task.Delay(300, token);
+                await Task.Delay(500, token);
             }
+            
             token.ThrowIfCancellationRequested();
 
-            UpdateStatus("Launching Roblox Studio...");
-            SetProgress(needsUpdate ? 88 : 75);
-            await Task.Delay(800, token);
+            UpdateStatus("Launching Studio...", "Starting application", "Launching");
+            SetProgress(needsUpdate ? 92 : 70);
+            await Task.Delay(500, token);
+            
             if (needsUpdate)
             {
-                await Task.Delay(1500, token);
-                RemoveDesktopShortcuts();
-                await Task.Delay(1000, token);
+                await Task.Delay(500, token);
                 RemoveDesktopShortcuts();
             }
-            await Task.Delay(400, token);
-           
+            
             string exePath = IOPath.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "Roblox", "Versions", installedVersion!, "RobloxStudioBeta.exe");
+                
             if (!File.Exists(exePath))
                 throw new Exception("Studio executable not found.");
                 
@@ -450,13 +472,49 @@ namespace SmilezStrap
                 Process.Start(new ProcessStartInfo(exePath) { UseShellExecute = true });
             }
            
-            SetProgress(100);
+            SetProgress(100, "Complete");
             await Task.Delay(800, token);
             RemoveDesktopShortcuts();
-            ShowCompletion(true);
+            ShowCompletion(true, "Studio is now running");
             await Task.Delay(1500);
             this.Close();
         }
+
+        private async Task MonitorRobloxProcess(Process? process)
+        {
+            if (process == null) return;
+            
+            var tcs = new TaskCompletionSource<bool>();
+            
+            processMonitorTimer = new System.Timers.Timer(1000);
+            processMonitorTimer.Elapsed += (sender, e) =>
+            {
+                try
+                {
+                    if (process.HasExited)
+                    {
+                        processMonitorTimer.Stop();
+                        Dispatcher.Invoke(() =>
+                        {
+                            UpdateStatus("Roblox closed", "Game window was closed", "Exited");
+                        });
+                    }
+                    else if (process.MainWindowHandle != IntPtr.Zero)
+                    {
+                        processMonitorTimer.Stop();
+                        tcs.TrySetResult(true);
+                    }
+                }
+                catch { }
+            };
+            
+            processMonitorTimer.Start();
+            
+            await tcs.Task;
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
 
         private async Task ApplyAllSettings()
         {
