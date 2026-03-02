@@ -377,7 +377,7 @@
                                                    HorizontalAlignment="Center" Margin="0,0,0,12"/>
                                         <TextBlock Text="Studio" FontSize="16" FontWeight="SemiBold" 
                                                    Foreground="White" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Create & Edit" FontSize="12" 
+                                        <TextBlock Text="Create &amp; Edit" FontSize="12" 
                                                    Foreground="#999" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Button>
@@ -391,7 +391,7 @@
                                                    HorizontalAlignment="Center" Margin="0,0,0,12"/>
                                         <TextBlock Text="Mod Manager" FontSize="16" FontWeight="SemiBold" 
                                                    Foreground="White" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Manage Flags & Mods" FontSize="12" 
+                                        <TextBlock Text="Manage Flags &amp; Mods" FontSize="12" 
                                                    Foreground="#999" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Button>
@@ -459,7 +459,7 @@
                                 </Grid>
                             </Border>
 
-                            <TextBlock Text="Graphics & Performance" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock Text="Graphics &amp; Performance" Style="{StaticResource SectionHeader}"/>
                             
                             <Grid Margin="0,0,0,20">
                                 <Grid.ColumnDefinitions>
@@ -560,7 +560,7 @@
                                 </Border>
                             </Grid>
 
-                            <TextBlock Text="Input & Controls" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock Text="Input &amp; Controls" Style="{StaticResource SectionHeader}"/>
                             
                             <Grid Margin="0,0,0,30">
                                 <Grid.ColumnDefinitions>
@@ -651,7 +651,7 @@
                                                    HorizontalAlignment="Center" Margin="0,0,0,12"/>
                                         <TextBlock Text="FastFlags" FontSize="14" FontWeight="SemiBold" 
                                                    Foreground="White" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Performance & features" 
+                                        <TextBlock Text="Performance &amp; features" 
                                                    FontSize="11" Foreground="#888" HorizontalAlignment="Center" 
                                                    Margin="0,4,0,12" TextWrapping="Wrap" TextAlignment="Center"/>
                                         <Button Content="Configure" Style="{StaticResource SecondaryButton}" 
@@ -665,7 +665,7 @@
                                                    HorizontalAlignment="Center" Margin="0,0,0,12"/>
                                         <TextBlock Text="Audio Mods" FontSize="14" FontWeight="SemiBold" 
                                                    Foreground="White" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Sounds & music" 
+                                        <TextBlock Text="Sounds &amp; music" 
                                                    FontSize="11" Foreground="#888" HorizontalAlignment="Center" 
                                                    Margin="0,4,0,12" TextWrapping="Wrap" TextAlignment="Center"/>
                                         <Button Content="Browse" Style="{StaticResource SecondaryButton}" 
@@ -734,7 +734,7 @@
                             
                             <Border Style="{StaticResource CardStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="Community & Support" FontSize="15" 
+                                    <TextBlock Text="Community &amp; Support" FontSize="15" 
                                                FontWeight="SemiBold" Foreground="White" Margin="0,0,0,12"/>
                                     <Button Content="🌐 GitHub Repository" Height="35" Margin="0,0,0,8" 
                                             Style="{StaticResource SecondaryButton}" Click="VisitGitHub_Click"/>
