@@ -29,27 +29,35 @@ namespace SmilezStrap
 
         public ProgressWindow(bool launchStudio = false, Config? appConfig = null, string? gameUrl = null)
         {
-            InitializeComponent();
-            isStudio = launchStudio;
-            config = appConfig;
-            protocolUrl = gameUrl;
-            cancellationTokenSource = new CancellationTokenSource();
-            
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "SmilezStrap");
-            
-            if (isStudio)
+            try
             {
-                TitleText.Text = "Launching Studio";
-                TitleIcon.Text = "🛠️";
+                InitializeComponent();
+                isStudio = launchStudio;
+                config = appConfig;
+                protocolUrl = gameUrl;
+                cancellationTokenSource = new CancellationTokenSource();
+                
+                httpClient.DefaultRequestHeaders.Add("User-Agent", "SmilezStrap");
+                
+                if (isStudio)
+                {
+                    TitleText.Text = "Launching Studio";
+                    TitleIcon.Text = "🛠️";
+                }
+                else
+                {
+                    TitleText.Text = "Launching Roblox";
+                    TitleIcon.Text = "🎮";
+                }
+                
+                Loaded += async (s, e) => await StartLaunchProcess();
+                Closed += (s, e) => processMonitorTimer?.Stop();
             }
-            else
+            catch (Exception ex)
             {
-                TitleText.Text = "Launching Roblox";
-                TitleIcon.Text = "🎮";
+                MessageBox.Show($"Error initializing progress window: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Close();
             }
-            
-            Loaded += async (s, e) => await StartLaunchProcess();
-            Closed += (s, e) => processMonitorTimer?.Stop();
         }
 
         private void UpdateStatus(string status, string detail = "", string stage = "")
