@@ -29,35 +29,32 @@ namespace SmilezStrap
 
         public ProgressWindow(bool launchStudio = false, Config? appConfig = null, string? gameUrl = null)
         {
-            try
+            InitializeComponent();
+            
+            // Apply open animation
+            var storyboard = (Storyboard)FindResource("WindowOpenAnimation");
+            storyboard.Begin(this);
+            
+            isStudio = launchStudio;
+            config = appConfig;
+            protocolUrl = gameUrl;
+            cancellationTokenSource = new CancellationTokenSource();
+            
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "SmilezStrap");
+            
+            if (isStudio)
             {
-                InitializeComponent();
-                isStudio = launchStudio;
-                config = appConfig;
-                protocolUrl = gameUrl;
-                cancellationTokenSource = new CancellationTokenSource();
-                
-                httpClient.DefaultRequestHeaders.Add("User-Agent", "SmilezStrap");
-                
-                if (isStudio)
-                {
-                    TitleText.Text = "Launching Studio";
-                    TitleIcon.Text = "🛠️";
-                }
-                else
-                {
-                    TitleText.Text = "Launching Roblox";
-                    TitleIcon.Text = "🎮";
-                }
-                
-                Loaded += async (s, e) => await StartLaunchProcess();
-                Closed += (s, e) => processMonitorTimer?.Stop();
+                TitleText.Text = "Launching Studio";
+                TitleIcon.Text = "🛠️";
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Error initializing progress window: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Close();
+                TitleText.Text = "Launching Roblox";
+                TitleIcon.Text = "🎮";
             }
+            
+            Loaded += async (s, e) => await StartLaunchProcess();
+            Closed += (s, e) => processMonitorTimer?.Stop();
         }
 
         private void UpdateStatus(string status, string detail = "", string stage = "")
@@ -79,12 +76,12 @@ namespace SmilezStrap
                 if (!string.IsNullOrEmpty(stage))
                     StageText.Text = stage;
                 
-                var targetWidth = 440.0 * (percent / 100.0);
+                var targetWidth = 390.0 * (percent / 100.0);
                 
                 var animation = new DoubleAnimation
                 {
                     To = targetWidth,
-                    Duration = TimeSpan.FromMilliseconds(300),
+                    Duration = TimeSpan.FromMilliseconds(200),
                     EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
                 };
                 ProgressBarFill.BeginAnimation(WidthProperty, animation);
