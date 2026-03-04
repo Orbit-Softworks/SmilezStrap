@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Linq;
 using Microsoft.Win32;
+using System.Windows.Media.Animation;
 
 namespace SmilezStrap
 {
@@ -47,7 +48,10 @@ namespace SmilezStrap
             {
                 LoadSettings();
                 StartGlobalSettingsMonitor();
+                Window_Loaded(s, e);
             };
+            
+            this.Closing += Window_Closing;
             
             HomeView.Visibility = Visibility.Visible;
             SettingsView.Visibility = Visibility.Collapsed;
@@ -56,6 +60,25 @@ namespace SmilezStrap
             
             CheckForUpdatesOnStartup();
             LoadAboutContent();
+        }
+
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            var storyboard = (Storyboard)FindResource("WindowOpenAnimation");
+            storyboard.Begin(this);
+        }
+
+        private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true;
+            
+            var storyboard = (Storyboard)FindResource("WindowCloseAnimation");
+            storyboard.Completed += (s, _) => 
+            {
+                SaveSettings();
+                Application.Current.Shutdown();
+            };
+            storyboard.Begin(this);
         }
 
         private void StartGlobalSettingsMonitor()
@@ -79,7 +102,7 @@ namespace SmilezStrap
                 settingsSyncTimer.AutoReset = true;
                 settingsSyncTimer.Start();
             }
-            catch (Exception ex)
+            catch
             {
             }
         }
@@ -214,7 +237,7 @@ namespace SmilezStrap
                     });
                 }
             }
-            catch (Exception ex)
+            catch
             {
             }
             finally
@@ -314,7 +337,7 @@ namespace SmilezStrap
                 
                 config.GraphicsQuality = graphicsQualityLevel;
             }
-            catch (Exception ex)
+            catch
             {
             }
         }
@@ -525,26 +548,26 @@ namespace SmilezStrap
             newView.Visibility = Visibility.Visible;
             newTransform.Y = slideDistance * direction;
             
-            var currentAnimation = new System.Windows.Media.Animation.DoubleAnimation
+            var currentAnimation = new DoubleAnimation
             {
                 From = 0,
                 To = -slideDistance * direction,
-                Duration = TimeSpan.FromMilliseconds(400),
-                EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseInOut }
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
             
-            var newAnimation = new System.Windows.Media.Animation.DoubleAnimation
+            var newAnimation = new DoubleAnimation
             {
                 From = slideDistance * direction,
                 To = 0,
-                Duration = TimeSpan.FromMilliseconds(400),
-                EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseInOut }
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
             
             currentTransform.BeginAnimation(TranslateTransform.YProperty, currentAnimation);
             newTransform.BeginAnimation(TranslateTransform.YProperty, newAnimation);
             
-            await Task.Delay(400);
+            await Task.Delay(300);
             
             currentView.Visibility = Visibility.Collapsed;
             currentTransform.Y = 0;
@@ -597,8 +620,7 @@ namespace SmilezStrap
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            SaveSettings();
-            this.Close();
+            Window_Closing(sender, new System.ComponentModel.CancelEventArgs());
         }
 
         private void InitializeApp()
@@ -654,7 +676,7 @@ namespace SmilezStrap
                 string json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(configPath, json);
             }
-            catch (Exception ex)
+            catch
             {
             }
         }
@@ -677,7 +699,7 @@ namespace SmilezStrap
                 
                 AboutContentText.Text = readmeContent;
             }
-            catch (Exception ex)
+            catch
             {
                 AboutContentText.Text = $"SmilezStrap - Roblox Bootstrapper\n\n" +
                                        $"Version: {VERSION}\n\n" +
@@ -768,7 +790,7 @@ namespace SmilezStrap
                 
                 return false;
             }
-            catch (HttpRequestException ex)
+            catch (HttpRequestException)
             {
                 if (showNoUpdateMessage)
                 {
@@ -777,7 +799,7 @@ namespace SmilezStrap
                 }
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
                 if (showNoUpdateMessage)
                 {
