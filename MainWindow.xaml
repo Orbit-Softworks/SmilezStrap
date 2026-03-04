@@ -4,24 +4,59 @@
         Title="SmilezStrap" Height="650" Width="1000"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
-        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
    
     <Window.Resources>
-        <!-- AMOLED Black & Red Theme -->
+        <!-- Modern AMOLED Theme -->
         <Color x:Key="AccentColor">#FF0000</Color>
         <Color x:Key="AccentGlow">#8B0000</Color>
         <Color x:Key="BackgroundDark">#000000</Color>
         <Color x:Key="BackgroundMedium">#0A0A0A</Color>
-        <Color x:Key="BackgroundLight">#121212</Color>
-        <Color x:Key="BorderColor">#1E1E1E</Color>
+        <Color x:Key="BackgroundLight">#111111</Color>
+        <Color x:Key="BorderColor">#202020</Color>
         <Color x:Key="TextPrimary">#FFFFFF</Color>
-        <Color x:Key="TextSecondary">#CCCCCC</Color>
-        <Color x:Key="TextMuted">#888888</Color>
+        <Color x:Key="TextSecondary">#E0E0E0</Color>
+        <Color x:Key="TextMuted">#909090</Color>
+
+        <!-- Smooth animations -->
+        <Storyboard x:Key="WindowOpenAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="(Window.RenderTransform).(ScaleTransform.ScaleX)" 
+                           From="0.3" To="1" Duration="0:0:0.3">
+                <DoubleAnimation.EasingFunction>
+                    <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetProperty="(Window.RenderTransform).(ScaleTransform.ScaleY)" 
+                           From="0.3" To="1" Duration="0:0:0.3">
+                <DoubleAnimation.EasingFunction>
+                    <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.2"/>
+        </Storyboard>
+
+        <Storyboard x:Key="WindowCloseAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="(Window.RenderTransform).(ScaleTransform.ScaleX)" 
+                           To="0" Duration="0:0:0.25">
+                <DoubleAnimation.EasingFunction>
+                    <BackEase EasingMode="EaseIn" Amplitude="0.5"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetProperty="(Window.RenderTransform).(ScaleTransform.ScaleY)" 
+                           To="0" Duration="0:0:0.25">
+                <DoubleAnimation.EasingFunction>
+                    <BackEase EasingMode="EaseIn" Amplitude="0.5"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
+        </Storyboard>
 
         <Style TargetType="Slider">
             <Setter Property="Foreground" Value="#FF0000"/>
-            <Setter Property="Background" Value="#121212"/>
-            <Setter Property="BorderBrush" Value="#1E1E1E"/>
+            <Setter Property="Background" Value="#111111"/>
+            <Setter Property="BorderBrush" Value="#202020"/>
             <Setter Property="Height" Value="24"/>
             <Setter Property="Margin" Value="0,8,0,0"/>
             <Setter Property="Template">
@@ -32,14 +67,14 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <Border Grid.Row="0" Background="#121212" Height="4" CornerRadius="2" Margin="0,8,0,0"/>
+                            <Border Grid.Row="0" Background="#111111" Height="4" CornerRadius="0" Margin="0,8,0,0"/>
                             <Thumb x:Name="Thumb" Grid.Row="0" Width="16" Height="16" Margin="0,2,0,0"
                                    Background="White" BorderBrush="#FF0000" BorderThickness="2"
                                    Cursor="Hand">
                                 <Thumb.Template>
                                     <ControlTemplate>
                                         <Border Background="{TemplateBinding Background}" 
-                                                CornerRadius="8" 
+                                                CornerRadius="0" 
                                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                                 BorderThickness="{TemplateBinding BorderThickness}"/>
                                     </ControlTemplate>
@@ -62,9 +97,9 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Width="18" Height="18" CornerRadius="4" 
-                                    Background="#121212" BorderBrush="#333333" BorderThickness="1">
-                                <Border x:Name="CheckMark" Background="#FF0000" CornerRadius="3" 
+                            <Border Grid.Column="0" Width="18" Height="18" CornerRadius="0" 
+                                    Background="#111111" BorderBrush="#303030" BorderThickness="1">
+                                <Border x:Name="CheckMark" Background="#FF0000" CornerRadius="0" 
                                         Margin="2" Visibility="Collapsed"/>
                             </Border>
                             <ContentPresenter Grid.Column="1" Margin="8,0,0,0" 
@@ -81,9 +116,9 @@
         </Style>
 
         <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#121212"/>
+            <Setter Property="Background" Value="#111111"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#333333"/>
+            <Setter Property="BorderBrush" Value="#303030"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="12,8"/>
             <Setter Property="FontSize" Value="13"/>
@@ -94,7 +129,7 @@
                         <Border Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6">
+                                CornerRadius="0">
                             <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
                         </Border>
                     </ControlTemplate>
@@ -104,19 +139,20 @@
 
         <Style x:Key="MenuButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Height" Value="40"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="Padding" Value="20,0"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" 
                                 Padding="{TemplateBinding Padding}"
-                                CornerRadius="6"
+                                CornerRadius="0"
                                 Margin="8,2">
                             <ContentPresenter VerticalAlignment="Center"/>
                         </Border>
@@ -125,7 +161,8 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#121212"/>
+                    <Setter Property="Background" Value="#111111"/>
+                    <Setter Property="Foreground" Value="#FF0000"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -138,10 +175,11 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Padding" Value="24,12"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="0">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
@@ -150,28 +188,39 @@
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#FF3333"/>
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="1.02" ScaleY="1.02"/>
+                        </Setter.Value>
+                    </Setter>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
                     <Setter Property="Background" Value="#CC0000"/>
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
+                        </Setter.Value>
+                    </Setter>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="SecondaryButton" TargetType="Button">
-            <Setter Property="Background" Value="#121212"/>
+            <Setter Property="Background" Value="#111111"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#333333"/>
+            <Setter Property="BorderBrush" Value="#303030"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6">
+                                CornerRadius="0">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
@@ -179,16 +228,17 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#1E1E1E"/>
+                    <Setter Property="Background" Value="#1A1A1A"/>
+                    <Setter Property="BorderBrush" Value="#FF0000"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="Background" Value="#0A0A0A"/>
-            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="CornerRadius" Value="0"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#1E1E1E"/>
+            <Setter Property="BorderBrush" Value="#202020"/>
             <Setter Property="Padding" Value="16"/>
         </Style>
 
@@ -200,20 +250,25 @@
         </Style>
     </Window.Resources>
 
+    <Window.RenderTransform>
+        <ScaleTransform ScaleX="1" ScaleY="1"/>
+    </Window.RenderTransform>
+
     <Border Background="Transparent" Padding="10">
         <Border.Effect>
-            <DropShadowEffect Color="#FF0000" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
+            <DropShadowEffect Color="#FF0000" BlurRadius="20" ShadowDepth="0" Opacity="0.3"/>
         </Border.Effect>
         
-        <Border Background="#000000" CornerRadius="12" BorderThickness="1" BorderBrush="#1E1E1E">
+        <Border Background="#000000" CornerRadius="0" BorderThickness="1" BorderBrush="#202020">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="220"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Background="#0A0A0A" CornerRadius="12,0,0,12" 
-                        BorderThickness="0,0,1,0" BorderBrush="#1E1E1E">
+                <!-- Left Sidebar -->
+                <Border Grid.Column="0" Background="#0A0A0A" CornerRadius="0" 
+                        BorderThickness="0,0,1,0" BorderBrush="#202020">
                     <Grid>
                         <Grid Height="70" VerticalAlignment="Top" Margin="0,20,0,0">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -253,15 +308,15 @@
                                     Click="CheckUpdatesButton_Click" 
                                     Margin="0,0,0,12"/>
                             
-                            <Border Background="#121212" CornerRadius="6" Padding="10">
+                            <Border Background="#111111" CornerRadius="0" Padding="10">
                                 <StackPanel>
                                     <TextBlock x:Name="VersionText" 
                                                Text="v1.0.70" 
-                                               Foreground="#CCCCCC" 
+                                               Foreground="#E0E0E0" 
                                                FontSize="11" 
                                                HorizontalAlignment="Center"/>
                                     <TextBlock Text="ready" 
-                                               Foreground="#888888" 
+                                               Foreground="#909090" 
                                                FontSize="10" 
                                                HorizontalAlignment="Center"/>
                                 </StackPanel>
@@ -270,11 +325,13 @@
                     </Grid>
                 </Border>
 
+                <!-- Main Content Area -->
                 <Grid Grid.Column="1">
+                    <!-- Window Controls -->
                     <Grid Height="50" VerticalAlignment="Top">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0">
                             <Button Content="─" Width="40" Height="40" Background="Transparent" 
-                                    BorderThickness="0" Foreground="#CCCCCC" FontSize="16" 
+                                    BorderThickness="0" Foreground="#E0E0E0" FontSize="16" 
                                     Click="MinimizeButton_Click" Cursor="Hand">
                                 <Button.Style>
                                     <Style TargetType="Button">
@@ -283,7 +340,7 @@
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border Background="{TemplateBinding Background}" 
-                                                            CornerRadius="6" Margin="2">
+                                                            CornerRadius="0" Margin="2">
                                                         <ContentPresenter HorizontalAlignment="Center" 
                                                                         VerticalAlignment="Center"/>
                                                     </Border>
@@ -292,14 +349,14 @@
                                         </Setter>
                                         <Style.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#121212"/>
+                                                <Setter Property="Background" Value="#111111"/>
                                             </Trigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                             </Button>
                             <Button Content="✕" Width="40" Height="40" Background="Transparent" 
-                                    BorderThickness="0" Foreground="#CCCCCC" FontSize="16" 
+                                    BorderThickness="0" Foreground="#E0E0E0" FontSize="16" 
                                     Click="CloseButton_Click" Cursor="Hand">
                                 <Button.Style>
                                     <Style TargetType="Button">
@@ -308,7 +365,7 @@
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border Background="{TemplateBinding Background}" 
-                                                            CornerRadius="6" Margin="2">
+                                                            CornerRadius="0" Margin="2">
                                                         <ContentPresenter HorizontalAlignment="Center" 
                                                                         VerticalAlignment="Center"/>
                                                     </Border>
@@ -327,6 +384,7 @@
                         </StackPanel>
                     </Grid>
 
+                    <!-- Home View -->
                     <StackPanel x:Name="HomeView" Margin="40,60,40,40" Visibility="Visible">
                         <StackPanel.RenderTransform>
                             <TranslateTransform x:Name="HomeViewTransform" Y="0"/>
@@ -335,7 +393,7 @@
                         <TextBlock Text="Welcome back!" FontSize="28" FontWeight="Light" 
                                    Foreground="White" Margin="0,0,0,4"/>
                         <TextBlock Text="What would you like to launch today?" 
-                                   FontSize="14" Foreground="#CCCCCC" Margin="0,0,0,40"/>
+                                   FontSize="14" Foreground="#E0E0E0" Margin="0,0,0,40"/>
                         
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -353,7 +411,7 @@
                                         <TextBlock Text="Roblox" FontSize="16" FontWeight="SemiBold" 
                                                    Foreground="White" HorizontalAlignment="Center"/>
                                         <TextBlock Text="Launch Player" FontSize="12" 
-                                                   Foreground="#CCCCCC" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                                   Foreground="#E0E0E0" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Button>
                             </Border>
@@ -367,7 +425,7 @@
                                         <TextBlock Text="Studio" FontSize="16" FontWeight="SemiBold" 
                                                    Foreground="White" HorizontalAlignment="Center"/>
                                         <TextBlock Text="Create &amp; Edit" FontSize="12" 
-                                                   Foreground="#CCCCCC" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                                   Foreground="#E0E0E0" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Button>
                             </Border>
@@ -385,9 +443,9 @@
                                     <TextBlock Text="📊 Status" FontSize="12" FontWeight="SemiBold" 
                                                Foreground="#FF0000" Margin="0,0,0,8"/>
                                     <TextBlock x:Name="RobloxStatusText" Text="Roblox: Ready" 
-                                               FontSize="11" Foreground="#CCCCCC" Margin="0,2,0,2"/>
+                                               FontSize="11" Foreground="#E0E0E0" Margin="0,2,0,2"/>
                                     <TextBlock x:Name="VersionStatusText" Text="Version: Latest" 
-                                               FontSize="11" Foreground="#888888"/>
+                                               FontSize="11" Foreground="#909090"/>
                                 </StackPanel>
                             </Border>
                             
@@ -404,6 +462,7 @@
                         </Grid>
                     </StackPanel>
 
+                    <!-- Settings View -->
                     <ScrollViewer x:Name="SettingsView" Margin="40,60,40,30" Visibility="Collapsed"
                                   VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <ScrollViewer.RenderTransform>
@@ -414,7 +473,7 @@
                             <StackPanel Margin="0,0,0,25">
                                 <TextBlock Text="Settings" Style="{StaticResource SectionHeader}" FontSize="24"/>
                                 <TextBlock Text="Customize your Roblox experience" 
-                                           FontSize="13" Foreground="#888888"/>
+                                           FontSize="13" Foreground="#909090"/>
                             </StackPanel>
 
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
@@ -427,7 +486,7 @@
                                         <TextBlock Text="Read-Only Mode" FontSize="14" FontWeight="SemiBold" 
                                                    Foreground="White"/>
                                         <TextBlock Text="Prevent Roblox from overriding your settings" 
-                                                   Foreground="#888888" FontSize="11" Margin="0,3,0,0"/>
+                                                   Foreground="#909090" FontSize="11" Margin="0,3,0,0"/>
                                     </StackPanel>
                                     <CheckBox x:Name="ReadOnlyCheckBox" Grid.Column="1" 
                                               VerticalAlignment="Center" IsChecked="False"/>
@@ -454,10 +513,10 @@
                                                 <TextBlock Text="Graphics Quality" FontSize="13" 
                                                            FontWeight="SemiBold" Foreground="White"/>
                                                 <TextBlock Text="Adjust visual fidelity" 
-                                                           Foreground="#888888" FontSize="11"/>
+                                                           Foreground="#909090" FontSize="11"/>
                                             </StackPanel>
-                                            <Border Grid.Column="1" Background="#121212" 
-                                                    CornerRadius="4" Padding="6,3">
+                                            <Border Grid.Column="1" Background="#111111" 
+                                                    CornerRadius="0" Padding="6,3">
                                                 <TextBlock x:Name="GraphicsQualityValue" 
                                                            Text="Level 1" Foreground="#FF0000" 
                                                            FontSize="12" FontWeight="SemiBold" 
@@ -475,7 +534,7 @@
                                     <StackPanel>
                                         <TextBlock Text="FPS Limit" FontSize="13" FontWeight="SemiBold" 
                                                    Foreground="White" Margin="0,0,0,4"/>
-                                        <TextBlock Text="Maximum framerate" Foreground="#888888" 
+                                        <TextBlock Text="Maximum framerate" Foreground="#909090" 
                                                    FontSize="11" Margin="0,0,0,12"/>
                                         <TextBox x:Name="FpsLimitTextBox" Text="9999"/>
                                     </StackPanel>
@@ -501,10 +560,10 @@
                                             <StackPanel Grid.Column="0">
                                                 <TextBlock Text="UI Transparency" FontSize="13" 
                                                            FontWeight="SemiBold" Foreground="White"/>
-                                                <TextBlock Text="Menu opacity" Foreground="#888888" FontSize="11"/>
+                                                <TextBlock Text="Menu opacity" Foreground="#909090" FontSize="11"/>
                                             </StackPanel>
-                                            <Border Grid.Column="1" Background="#121212" 
-                                                    CornerRadius="4" Padding="6,3">
+                                            <Border Grid.Column="1" Background="#111111" 
+                                                    CornerRadius="0" Padding="6,3">
                                                 <TextBlock x:Name="TransparencyValue" 
                                                            Text="1.0" Foreground="#FF0000" 
                                                            FontSize="12" FontWeight="SemiBold" 
@@ -527,7 +586,7 @@
                                             <TextBlock Text="Reduced Motion" FontSize="13" 
                                                        FontWeight="SemiBold" Foreground="White"/>
                                             <TextBlock Text="Disable menu animations" 
-                                                       Foreground="#888888" FontSize="11"/>
+                                                       Foreground="#909090" FontSize="11"/>
                                         </StackPanel>
                                         <CheckBox x:Name="ReducedMotionCheckBox" Grid.Column="1" 
                                                   VerticalAlignment="Center"/>
@@ -548,7 +607,7 @@
                                     <StackPanel>
                                         <TextBlock Text="Mouse Sensitivity" FontSize="13" 
                                                    FontWeight="SemiBold" Foreground="White" Margin="0,0,0,4"/>
-                                        <TextBlock Text="Camera movement speed" Foreground="#888888" 
+                                        <TextBlock Text="Camera movement speed" Foreground="#909090" 
                                                    FontSize="11" Margin="0,0,0,12"/>
                                         <TextBox x:Name="MouseSensitivityTextBox" Text="0.360000014"/>
                                     </StackPanel>
@@ -564,7 +623,7 @@
                                             <TextBlock Text="VR Mode" FontSize="13" 
                                                        FontWeight="SemiBold" Foreground="White"/>
                                             <TextBlock Text="Enable VR support" 
-                                                       Foreground="#888888" FontSize="11"/>
+                                                       Foreground="#909090" FontSize="11"/>
                                         </StackPanel>
                                         <CheckBox x:Name="VREnabledCheckBox" Grid.Column="1" 
                                                   VerticalAlignment="Center"/>
@@ -586,6 +645,7 @@
                         </StackPanel>
                     </ScrollViewer>
 
+                    <!-- About View -->
                     <ScrollViewer x:Name="AboutView" Margin="40,60,40,40" Visibility="Collapsed"
                                   VerticalScrollBarVisibility="Auto">
                         <ScrollViewer.RenderTransform>
@@ -598,7 +658,7 @@
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,0,15">
                                 <StackPanel>
                                     <TextBlock x:Name="AboutContentText" TextWrapping="Wrap" 
-                                               Foreground="#CCCCCC" FontSize="12" LineHeight="20"/>
+                                               Foreground="#E0E0E0" FontSize="12" LineHeight="20"/>
                                 </StackPanel>
                             </Border>
                             
@@ -615,21 +675,22 @@
                         </StackPanel>
                     </ScrollViewer>
 
+                    <!-- Discord Popup -->
                     <Border x:Name="DiscordPopup" Grid.ColumnSpan="2" Background="#CC000000" Visibility="Collapsed">
-                        <Border Background="#0A0A0A" CornerRadius="12" BorderThickness="1" BorderBrush="#FF0000" 
+                        <Border Background="#0A0A0A" CornerRadius="0" BorderThickness="1" BorderBrush="#FF0000" 
                                 Width="400" Height="200" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <Border.Effect>
-                                <DropShadowEffect Color="#FF0000" BlurRadius="20" ShadowDepth="0" Opacity="0.3"/>
+                                <DropShadowEffect Color="#FF0000" BlurRadius="15" ShadowDepth="0" Opacity="0.3"/>
                             </Border.Effect>
                             <Grid>
                                 <StackPanel Margin="30" VerticalAlignment="Center">
                                     <TextBlock Text="⚠️ External Link" FontSize="18" FontWeight="SemiBold" 
                                                Foreground="#FF0000" HorizontalAlignment="Center" Margin="0,0,0,15"/>
                                     <TextBlock Text="You are about to be redirected to our Discord server." 
-                                               FontSize="13" Foreground="#CCCCCC" TextWrapping="Wrap" 
+                                               FontSize="13" Foreground="#E0E0E0" TextWrapping="Wrap" 
                                                HorizontalAlignment="Center" Margin="0,0,0,5"/>
                                     <TextBlock Text="Are you sure you want to continue?" FontSize="13" 
-                                               Foreground="#888888" TextWrapping="Wrap" HorizontalAlignment="Center" 
+                                               Foreground="#909090" TextWrapping="Wrap" HorizontalAlignment="Center" 
                                                Margin="0,0,0,20"/>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
