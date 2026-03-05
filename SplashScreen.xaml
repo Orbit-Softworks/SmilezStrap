@@ -1,0 +1,53 @@
+<Window x:Class="SmilezStrap.SplashScreen"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SmilezStrap" Height="300" Width="400"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" Topmost="True"
+        ShowInTaskbar="False" ResizeMode="NoResize">
+    
+    <Window.Resources>
+        <Storyboard x:Key="FadeOutAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" 
+                           From="1" To="0" Duration="0:0:0.5">
+                <DoubleAnimation.EasingFunction>
+                    <QuadraticEase EasingMode="EaseIn"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+    </Window.Resources>
+    
+    <Border Background="Transparent">
+        <Border.Effect>
+            <DropShadowEffect Color="#FF0000" BlurRadius="30" ShadowDepth="0" Opacity="0.5"/>
+        </Border.Effect>
+        
+        <Border Background="#000000" BorderThickness="1" BorderBrush="#FF0000" CornerRadius="0">
+            <Grid Margin="30">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Logo -->
+                <TextBlock Grid.Row="0" Text="🎮" FontSize="64" Foreground="#FF0000" 
+                           HorizontalAlignment="Center" Margin="0,20,0,20"/>
+                
+                <!-- App Name -->
+                <TextBlock Grid.Row="1" Text="SmilezStrap" FontSize="28" FontWeight="Bold" 
+                           Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                
+                <!-- Version -->
+                <TextBlock Grid.Row="2" x:Name="VersionText" Text="v1.0.70" FontSize="14" 
+                           Foreground="#909090" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                
+                <!-- Loading Indicator -->
+                <ProgressBar Grid.Row="3" Height="2" Width="200" IsIndeterminate="True" 
+                             Background="#111111" Foreground="#FF0000" BorderThickness="0" 
+                             Margin="0,30,0,0" HorizontalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Border>
+</Window>
