@@ -13,7 +13,8 @@
                                    Stroke="#303030" StrokeThickness="1"/>
                         <Track x:Name="PART_Track" VerticalAlignment="Center">
                             <Track.DecreaseRepeatButton>
-                                <RepeatButton Focusable="False" Command="Slider.DecreaseLarge">
+                                <RepeatButton Focusable="False"
+                                              Command="{x:Static Slider.DecreaseLarge}">
                                     <RepeatButton.Template>
                                         <ControlTemplate TargetType="{x:Type RepeatButton}">
                                             <Rectangle Height="4" Fill="#FF0000"/>
@@ -25,14 +26,15 @@
                                 <Thumb Cursor="Hand">
                                     <Thumb.Template>
                                         <ControlTemplate TargetType="{x:Type Thumb}">
-                                            <Rectangle Width="16" Height="16" Fill="White"
-                                                       Stroke="#FF0000" StrokeThickness="2"/>
+                                            <Rectangle Width="16" Height="16"
+                                                       Fill="White" Stroke="#FF0000" StrokeThickness="2"/>
                                         </ControlTemplate>
                                     </Thumb.Template>
                                 </Thumb>
                             </Track.Thumb>
                             <Track.IncreaseRepeatButton>
-                                <RepeatButton Focusable="False" Command="Slider.IncreaseLarge">
+                                <RepeatButton Focusable="False"
+                                              Command="{x:Static Slider.IncreaseLarge}">
                                     <RepeatButton.Template>
                                         <ControlTemplate TargetType="{x:Type RepeatButton}">
                                             <Rectangle Height="4" Fill="Transparent"/>
