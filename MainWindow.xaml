@@ -54,33 +54,47 @@
             <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.25"/>
         </Storyboard>
 
+        <!-- RepeatButton templates extracted as named resources to avoid nested Style parsing issues -->
+        <ControlTemplate x:Key="SliderDecreaseTemplate" TargetType="RepeatButton">
+            <Border Background="#FF0000" Height="4" CornerRadius="0"/>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="SliderIncreaseTemplate" TargetType="RepeatButton">
+            <Border Background="Transparent" Height="4" CornerRadius="0"/>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="SliderThumbTemplate" TargetType="Thumb">
+            <Border Background="White" BorderBrush="#FF0000" BorderThickness="2" CornerRadius="0"
+                    Width="16" Height="16"/>
+        </ControlTemplate>
+
+        <!-- Slider style using PART_Track with extracted templates -->
         <Style TargetType="Slider">
-            <Setter Property="Foreground" Value="#FF0000"/>
-            <Setter Property="Background" Value="#111111"/>
-            <Setter Property="BorderBrush" Value="#202020"/>
             <Setter Property="Height" Value="24"/>
             <Setter Property="Margin" Value="0,8,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Slider">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Border Grid.Row="0" Background="#111111" Height="4" CornerRadius="0" Margin="0,8,0,0"/>
-                            <Thumb x:Name="Thumb" Grid.Row="0" Width="16" Height="16" Margin="0,2,0,0"
-                                   Background="White" BorderBrush="#FF0000" BorderThickness="2"
-                                   Cursor="Hand">
-                                <Thumb.Template>
-                                    <ControlTemplate>
-                                        <Border Background="{TemplateBinding Background}" 
-                                                CornerRadius="0" 
-                                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                                BorderThickness="{TemplateBinding BorderThickness}"/>
-                                    </ControlTemplate>
-                                </Thumb.Template>
-                            </Thumb>
+                        <Grid VerticalAlignment="Center" Height="24">
+                            <!-- Background track -->
+                            <Border Height="4" Background="#111111" BorderBrush="#303030"
+                                    BorderThickness="1" VerticalAlignment="Center"/>
+                            <!-- PART_Track must use this exact name for WPF thumb positioning -->
+                            <Track x:Name="PART_Track" VerticalAlignment="Center">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="Slider.DecreaseLarge" Focusable="False"
+                                                  Template="{StaticResource SliderDecreaseTemplate}"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Cursor="Hand"
+                                           Template="{StaticResource SliderThumbTemplate}"/>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="Slider.IncreaseLarge" Focusable="False"
+                                                  Template="{StaticResource SliderIncreaseTemplate}"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -463,7 +477,7 @@
                         </Grid>
                     </StackPanel>
 
-                    <!-- Settings View - Hidden scrollbar -->
+                    <!-- Settings View -->
                     <ScrollViewer x:Name="SettingsView" Margin="40,60,40,30" Visibility="Collapsed"
                                   VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
                         <ScrollViewer.RenderTransform>
@@ -646,7 +660,7 @@
                         </StackPanel>
                     </ScrollViewer>
 
-                    <!-- About View - Hidden scrollbar -->
+                    <!-- About View -->
                     <ScrollViewer x:Name="AboutView" Margin="40,60,40,40" Visibility="Collapsed"
                                   VerticalScrollBarVisibility="Hidden">
                         <ScrollViewer.RenderTransform>
