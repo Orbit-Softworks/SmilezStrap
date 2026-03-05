@@ -21,7 +21,6 @@
         <Color x:Key="TextSecondary">#E0E0E0</Color>
         <Color x:Key="TextMuted">#909090</Color>
 
-        <!-- Ultra smooth animations -->
         <Storyboard x:Key="WindowOpenAnimation">
             <DoubleAnimation Storyboard.TargetProperty="(Window.RenderTransform).(ScaleTransform.ScaleX)" 
                            From="0.3" To="1" Duration="0:0:0.4">
@@ -54,45 +53,51 @@
             <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.25"/>
         </Storyboard>
 
-        <!-- RepeatButton templates extracted as named resources to avoid nested Style parsing issues -->
-        <ControlTemplate x:Key="SliderDecreaseTemplate" TargetType="RepeatButton">
-            <Border Background="#FF0000" Height="4" CornerRadius="0"/>
-        </ControlTemplate>
-
-        <ControlTemplate x:Key="SliderIncreaseTemplate" TargetType="RepeatButton">
-            <Border Background="Transparent" Height="4" CornerRadius="0"/>
-        </ControlTemplate>
-
-        <ControlTemplate x:Key="SliderThumbTemplate" TargetType="Thumb">
-            <Border Background="White" BorderBrush="#FF0000" BorderThickness="2" CornerRadius="0"
-                    Width="16" Height="16"/>
-        </ControlTemplate>
-
-        <!-- Slider style using PART_Track with extracted templates -->
-        <Style TargetType="Slider">
+        <!--
+            SLIDER FIX: Use {x:Type} for all TargetType declarations and Rectangle (not Border)
+            for the track fills. Inline sub-templates with no nested Style blocks.
+            This is the pattern the WPF BAML compiler handles without TypeConverter errors.
+        -->
+        <Style TargetType="{x:Type Slider}">
             <Setter Property="Height" Value="24"/>
             <Setter Property="Margin" Value="0,8,0,0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Slider">
-                        <Grid VerticalAlignment="Center" Height="24">
-                            <!-- Background track -->
-                            <Border Height="4" Background="#111111" BorderBrush="#303030"
-                                    BorderThickness="1" VerticalAlignment="Center"/>
-                            <!-- PART_Track must use this exact name for WPF thumb positioning -->
+                    <ControlTemplate TargetType="{x:Type Slider}">
+                        <Grid Height="24" VerticalAlignment="Center">
+                            <!-- Static background track -->
+                            <Rectangle Height="4" Fill="#1A1A1A" VerticalAlignment="Center"
+                                       Stroke="#303030" StrokeThickness="1"/>
+                            <!-- PART_Track: WPF requires this exact name to position the thumb -->
                             <Track x:Name="PART_Track" VerticalAlignment="Center">
                                 <Track.DecreaseRepeatButton>
-                                    <RepeatButton Command="Slider.DecreaseLarge" Focusable="False"
-                                                  Template="{StaticResource SliderDecreaseTemplate}"/>
+                                    <RepeatButton Focusable="False" Command="Slider.DecreaseLarge">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="{x:Type RepeatButton}">
+                                                <Rectangle Height="4" Fill="#FF0000"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
                                 </Track.DecreaseRepeatButton>
                                 <Track.Thumb>
-                                    <Thumb Cursor="Hand"
-                                           Template="{StaticResource SliderThumbTemplate}"/>
+                                    <Thumb Cursor="Hand">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="{x:Type Thumb}">
+                                                <Rectangle Width="16" Height="16" Fill="White"
+                                                           Stroke="#FF0000" StrokeThickness="2"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
                                 </Track.Thumb>
                                 <Track.IncreaseRepeatButton>
-                                    <RepeatButton Command="Slider.IncreaseLarge" Focusable="False"
-                                                  Template="{StaticResource SliderIncreaseTemplate}"/>
+                                    <RepeatButton Focusable="False" Command="Slider.IncreaseLarge">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="{x:Type RepeatButton}">
+                                                <Rectangle Height="4" Fill="Transparent"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
                                 </Track.IncreaseRepeatButton>
                             </Track>
                         </Grid>
@@ -101,12 +106,12 @@
             </Setter>
         </Style>
 
-        <Style TargetType="CheckBox">
+        <Style TargetType="{x:Type CheckBox}">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="CheckBox">
+                    <ControlTemplate TargetType="{x:Type CheckBox}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -130,7 +135,7 @@
             </Setter>
         </Style>
 
-        <Style TargetType="TextBox">
+        <Style TargetType="{x:Type TextBox}">
             <Setter Property="Background" Value="#111111"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderBrush" Value="#303030"/>
@@ -140,7 +145,7 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
+                    <ControlTemplate TargetType="{x:Type TextBox}">
                         <Border Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}"
@@ -152,7 +157,7 @@
             </Setter>
         </Style>
 
-        <Style x:Key="MenuButton" TargetType="Button">
+        <Style x:Key="MenuButton" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="#E0E0E0"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -164,7 +169,7 @@
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button">
+                    <ControlTemplate TargetType="{x:Type Button}">
                         <Border Background="{TemplateBinding Background}" 
                                 Padding="{TemplateBinding Padding}"
                                 CornerRadius="0"
@@ -182,7 +187,7 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="PrimaryButton" TargetType="Button">
+        <Style x:Key="PrimaryButton" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#FF0000"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -193,7 +198,7 @@
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button">
+                    <ControlTemplate TargetType="{x:Type Button}">
                         <Border Background="{TemplateBinding Background}" CornerRadius="0">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
@@ -220,7 +225,7 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="SecondaryButton" TargetType="Button">
+        <Style x:Key="SecondaryButton" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#111111"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -231,7 +236,7 @@
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button">
+                    <ControlTemplate TargetType="{x:Type Button}">
                         <Border Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
@@ -249,7 +254,7 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="CardStyle" TargetType="Border">
+        <Style x:Key="CardStyle" TargetType="{x:Type Border}">
             <Setter Property="Background" Value="#0A0A0A"/>
             <Setter Property="CornerRadius" Value="0"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -257,7 +262,7 @@
             <Setter Property="Padding" Value="16"/>
         </Style>
 
-        <Style x:Key="SectionHeader" TargetType="TextBlock">
+        <Style x:Key="SectionHeader" TargetType="{x:Type TextBlock}">
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="#FF0000"/>
@@ -349,11 +354,11 @@
                                     BorderThickness="0" Foreground="#E0E0E0" FontSize="16" 
                                     Click="MinimizeButton_Click" Cursor="Hand">
                                 <Button.Style>
-                                    <Style TargetType="Button">
+                                    <Style TargetType="{x:Type Button}">
                                         <Setter Property="Background" Value="Transparent"/>
                                         <Setter Property="Template">
                                             <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
+                                                <ControlTemplate TargetType="{x:Type Button}">
                                                     <Border Background="{TemplateBinding Background}" 
                                                             CornerRadius="0" Margin="2">
                                                         <ContentPresenter HorizontalAlignment="Center" 
@@ -374,11 +379,11 @@
                                     BorderThickness="0" Foreground="#E0E0E0" FontSize="16" 
                                     Click="CloseButton_Click" Cursor="Hand">
                                 <Button.Style>
-                                    <Style TargetType="Button">
+                                    <Style TargetType="{x:Type Button}">
                                         <Setter Property="Background" Value="Transparent"/>
                                         <Setter Property="Template">
                                             <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
+                                                <ControlTemplate TargetType="{x:Type Button}">
                                                     <Border Background="{TemplateBinding Background}" 
                                                             CornerRadius="0" Margin="2">
                                                         <ContentPresenter HorizontalAlignment="Center" 
