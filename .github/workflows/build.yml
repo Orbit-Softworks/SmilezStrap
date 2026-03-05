@@ -2,7 +2,7 @@ name: Build and Upload
 
 on:
   release:
-    types: [created]
+    types: [created, published]
 
 permissions:
   contents: write
