@@ -13,8 +13,8 @@
         <SolidColorBrush x:Key="TextGray" Color="#CCCCCC"/>
         <SolidColorBrush x:Key="TextDarkGray" Color="#666666"/>
         <SolidColorBrush x:Key="BorderGray" Color="#333333"/>
-        
-        <Style TargetType="Button">
+
+        <Style TargetType="{x:Type Button}">
             <Setter Property="Background" Value="{StaticResource BackgroundLight}"/>
             <Setter Property="Foreground" Value="{StaticResource TextWhite}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderGray}"/>
@@ -22,13 +22,13 @@
             <Setter Property="Padding" Value="8,4"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button">
+                    <ControlTemplate TargetType="{x:Type Button}">
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="4">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                            VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -39,20 +39,24 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <Style TargetType="TextBox">
+
+        <Style TargetType="{x:Type TextBox}">
             <Setter Property="Background" Value="{StaticResource BackgroundMedium}"/>
             <Setter Property="Foreground" Value="{StaticResource TextWhite}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderGray}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="5"/>
         </Style>
-        <Style TargetType="CheckBox">
+
+        <Style TargetType="{x:Type CheckBox}">
             <Setter Property="Foreground" Value="{StaticResource TextGray}"/>
         </Style>
-        <Style TargetType="TextBlock">
+
+        <Style TargetType="{x:Type TextBlock}">
             <Setter Property="Foreground" Value="{StaticResource TextGray}"/>
         </Style>
-        <Style TargetType="ScrollViewer">
+
+        <Style TargetType="{x:Type ScrollViewer}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderGray}"/>
             <Setter Property="BorderThickness" Value="1"/>
