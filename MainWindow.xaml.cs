@@ -71,7 +71,7 @@ namespace SmilezStrap
             _ = CheckForUpdatesOnStartup();
             LoadAboutContent();
             
-            // Initially hide the window
+            // Hide the main window initially
             this.Visibility = Visibility.Hidden;
             
             // Show splash screen
@@ -81,22 +81,19 @@ namespace SmilezStrap
         private void ShowSplashScreen()
         {
             splashScreen = new SplashScreen(VERSION);
+            
+            // When splash closes, show the main window
+            splashScreen.Closed += (s, e) => ShowMainWindow();
+            
             splashScreen.Show();
             splashScreen.Activate();
             
-            // Create a timer to close splash and show main window
-            var timer = new System.Timers.Timer(2500);
+            // Start timer to begin fade out after 2 seconds
+            var timer = new System.Timers.Timer(2000);
             timer.AutoReset = false;
             timer.Elapsed += (s, e) =>
             {
-                Dispatcher.Invoke(() =>
-                {
-                    // Start splash fade out
-                    splashScreen?.BeginFadeOut();
-                    
-                    // Show main window
-                    ShowMainWindow();
-                });
+                Dispatcher.Invoke(() => splashScreen?.BeginFadeOut());
                 timer.Dispose();
             };
             timer.Start();
@@ -104,13 +101,8 @@ namespace SmilezStrap
 
         private void ShowMainWindow()
         {
-            // Make sure window is visible
-            this.Visibility = Visibility.Visible;
-            this.ShowInTaskbar = true;
-            this.Opacity = 1;
-            this.WindowState = WindowState.Normal;
-            
-            // Bring to front
+            // Show the window
+            this.Show();  // Use Show() method
             this.Activate();
             this.Topmost = true;
             this.Topmost = false;
@@ -123,7 +115,7 @@ namespace SmilezStrap
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // This is intentionally empty
+            // Handled by splash screen
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -139,6 +131,7 @@ namespace SmilezStrap
             storyboard.Begin(this);
         }
 
+        // All your existing methods remain exactly the same below this line
         private void StartGlobalSettingsMonitor()
         {
             try
