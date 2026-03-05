@@ -6,7 +6,8 @@
         ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
         MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
         Loaded="Window_Loaded"
-        Closing="Window_Closing">
+        Closing="Window_Closing"
+        Icon="icon.ico">
    
     <Window.Resources>
         <!-- Modern AMOLED Theme -->
@@ -20,37 +21,37 @@
         <Color x:Key="TextSecondary">#E0E0E0</Color>
         <Color x:Key="TextMuted">#909090</Color>
 
-        <!-- Smooth animations -->
+        <!-- Ultra smooth animations -->
         <Storyboard x:Key="WindowOpenAnimation">
             <DoubleAnimation Storyboard.TargetProperty="(Window.RenderTransform).(ScaleTransform.ScaleX)" 
-                           From="0.3" To="1" Duration="0:0:0.3">
+                           From="0.3" To="1" Duration="0:0:0.4">
                 <DoubleAnimation.EasingFunction>
-                    <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
+                    <BackEase EasingMode="EaseOut" Amplitude="0.2"/>
                 </DoubleAnimation.EasingFunction>
             </DoubleAnimation>
             <DoubleAnimation Storyboard.TargetProperty="(Window.RenderTransform).(ScaleTransform.ScaleY)" 
-                           From="0.3" To="1" Duration="0:0:0.3">
+                           From="0.3" To="1" Duration="0:0:0.4">
                 <DoubleAnimation.EasingFunction>
-                    <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
+                    <BackEase EasingMode="EaseOut" Amplitude="0.2"/>
                 </DoubleAnimation.EasingFunction>
             </DoubleAnimation>
-            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.2"/>
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.3"/>
         </Storyboard>
 
         <Storyboard x:Key="WindowCloseAnimation">
             <DoubleAnimation Storyboard.TargetProperty="(Window.RenderTransform).(ScaleTransform.ScaleX)" 
-                           To="0" Duration="0:0:0.25">
+                           To="0" Duration="0:0:0.35">
                 <DoubleAnimation.EasingFunction>
-                    <BackEase EasingMode="EaseIn" Amplitude="0.5"/>
+                    <BackEase EasingMode="EaseIn" Amplitude="0.4"/>
                 </DoubleAnimation.EasingFunction>
             </DoubleAnimation>
             <DoubleAnimation Storyboard.TargetProperty="(Window.RenderTransform).(ScaleTransform.ScaleY)" 
-                           To="0" Duration="0:0:0.25">
+                           To="0" Duration="0:0:0.35">
                 <DoubleAnimation.EasingFunction>
-                    <BackEase EasingMode="EaseIn" Amplitude="0.5"/>
+                    <BackEase EasingMode="EaseIn" Amplitude="0.4"/>
                 </DoubleAnimation.EasingFunction>
             </DoubleAnimation>
-            <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.25"/>
         </Storyboard>
 
         <Style TargetType="Slider">
@@ -272,7 +273,7 @@
                     <Grid>
                         <Grid Height="70" VerticalAlignment="Top" Margin="0,20,0,0">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="🎮" FontSize="20" Foreground="#FF0000" Margin="0,0,8,0"/>
+                                <Image Source="icon.ico" Width="24" Height="24" Margin="0,0,8,0"/>
                                 <TextBlock Text="SmilezStrap" Foreground="White" FontSize="16" FontWeight="SemiBold"/>
                             </StackPanel>
                         </Grid>
@@ -406,8 +407,8 @@
                                 <Button Style="{StaticResource PrimaryButton}" Height="140" 
                                         Background="Transparent" Click="LaunchRoblox_Click">
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="🎮" FontSize="48" Foreground="#FF0000" 
-                                                   HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                                        <Image Source="icon.ico" Width="48" Height="48" 
+                                               HorizontalAlignment="Center" Margin="0,0,0,12"/>
                                         <TextBlock Text="Roblox" FontSize="16" FontWeight="SemiBold" 
                                                    Foreground="White" HorizontalAlignment="Center"/>
                                         <TextBlock Text="Launch Player" FontSize="12" 
@@ -420,8 +421,8 @@
                                 <Button Style="{StaticResource PrimaryButton}" Height="140" 
                                         Background="Transparent" Click="LaunchStudio_Click">
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="🛠️" FontSize="48" Foreground="#FF0000" 
-                                                   HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                                        <Image Source="icon.ico" Width="48" Height="48" 
+                                               HorizontalAlignment="Center" Margin="0,0,0,12"/>
                                         <TextBlock Text="Studio" FontSize="16" FontWeight="SemiBold" 
                                                    Foreground="White" HorizontalAlignment="Center"/>
                                         <TextBlock Text="Create &amp; Edit" FontSize="12" 
@@ -462,9 +463,9 @@
                         </Grid>
                     </StackPanel>
 
-                    <!-- Settings View -->
+                    <!-- Settings View - Hidden scrollbar -->
                     <ScrollViewer x:Name="SettingsView" Margin="40,60,40,30" Visibility="Collapsed"
-                                  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                  VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
                         <ScrollViewer.RenderTransform>
                             <TranslateTransform x:Name="SettingsViewTransform" Y="0"/>
                         </ScrollViewer.RenderTransform>
@@ -645,9 +646,9 @@
                         </StackPanel>
                     </ScrollViewer>
 
-                    <!-- About View -->
+                    <!-- About View - Hidden scrollbar -->
                     <ScrollViewer x:Name="AboutView" Margin="40,60,40,40" Visibility="Collapsed"
-                                  VerticalScrollBarVisibility="Auto">
+                                  VerticalScrollBarVisibility="Hidden">
                         <ScrollViewer.RenderTransform>
                             <TranslateTransform x:Name="AboutViewTransform" Y="0"/>
                         </ScrollViewer.RenderTransform>
