@@ -71,7 +71,7 @@ namespace SmilezStrap
             _ = CheckForUpdatesOnStartup();
             LoadAboutContent();
             
-            // Hide main window initially
+            // Initially hide the window
             this.Visibility = Visibility.Hidden;
             
             // Show splash screen
@@ -104,15 +104,17 @@ namespace SmilezStrap
 
         private void ShowMainWindow()
         {
-            // Show the window
+            // Make sure window is visible
             this.Visibility = Visibility.Visible;
             this.ShowInTaskbar = true;
             this.Opacity = 1;
+            this.WindowState = WindowState.Normal;
             
             // Bring to front
             this.Activate();
             this.Topmost = true;
             this.Topmost = false;
+            this.Focus();
             
             // Play the open animation
             var storyboard = (Storyboard)FindResource("WindowOpenAnimation");
@@ -121,7 +123,7 @@ namespace SmilezStrap
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // Handled by splash screen
+            // This is intentionally empty
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
