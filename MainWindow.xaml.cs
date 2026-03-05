@@ -58,13 +58,6 @@ namespace SmilezStrap
             
             InitializeApp();
             
-            this.Loaded += async (s, e) =>
-            {
-                LoadSettings();
-                StartGlobalSettingsMonitor();
-                await Window_Loaded(s, e);
-            };
-            
             this.Closing += Window_Closing;
             
             HomeView.Visibility = Visibility.Visible;
@@ -95,8 +88,13 @@ namespace SmilezStrap
             timer.Start();
         }
 
-        private async Task Window_Loaded(object sender, RoutedEventArgs e)
+        // FIX: Must be async void (not async Task) — XAML Loaded event handlers must return void.
+        // LoadSettings and StartGlobalSettingsMonitor moved here from the old constructor lambda.
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            LoadSettings();
+            StartGlobalSettingsMonitor();
+
             // Small delay to ensure splash screen is fading
             await Task.Delay(500);
             
@@ -104,7 +102,8 @@ namespace SmilezStrap
             storyboard.Begin(this);
         }
 
-        private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        // FIX: sender is object? to match CancelEventHandler delegate nullability (CS8622)
+        private async void Window_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
             
@@ -475,7 +474,6 @@ namespace SmilezStrap
                 config.SetAsReadOnly = ReadOnlyCheckBox.IsChecked ?? false;
                 
                 SaveConfig();
-                
                 ApplyAllSettings();
                 
                 MessageBox.Show(
@@ -584,7 +582,6 @@ namespace SmilezStrap
             newView.Visibility = Visibility.Visible;
             newTransform.Y = slideDistance * direction;
             
-            // Ultra smooth animations with exponential ease
             var currentAnimation = new DoubleAnimation
             {
                 From = 0,
@@ -601,7 +598,6 @@ namespace SmilezStrap
                 EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseInOut, Exponent = 3 }
             };
             
-            // Add slight opacity animation for extra smoothness
             var currentOpacityAnimation = new DoubleAnimation
             {
                 From = 1,
@@ -790,10 +786,8 @@ namespace SmilezStrap
                 if (string.IsNullOrEmpty(latestVersion))
                 {
                     if (showNoUpdateMessage)
-                    {
                         MessageBox.Show("Could not check for updates. Please try again later.",
                                         "Update Check", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
                     return true;
                 }
                 
@@ -803,20 +797,16 @@ namespace SmilezStrap
                     if (latestVersionObj <= currentVersion)
                     {
                         if (showNoUpdateMessage)
-                        {
                             MessageBox.Show($"You are using the latest version (v{VERSION}).",
                                             "Up to Date", MessageBoxButton.OK, MessageBoxImage.Information);
-                        }
                         return true;
                     }
                 }
                 else
                 {
                     if (showNoUpdateMessage)
-                    {
                         MessageBox.Show("Could not check for updates. Please try again later.",
                                         "Update Check", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
                     return true;
                 }
 
@@ -859,19 +849,15 @@ namespace SmilezStrap
             catch (HttpRequestException)
             {
                 if (showNoUpdateMessage)
-                {
                     MessageBox.Show($"Failed to check for updates.",
                                     "Update Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
                 return true;
             }
             catch
             {
                 if (showNoUpdateMessage)
-                {
                     MessageBox.Show($"Failed to check for updates.",
                                     "Update Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
                 return true;
             }
         }
@@ -881,7 +867,7 @@ namespace SmilezStrap
             var checkButton = sender as Button;
             if (checkButton != null)
             {
-                string originalText = checkButton.Content.ToString();
+                string originalText = checkButton.Content.ToString() ?? string.Empty;
                 checkButton.Content = "Checking...";
                 checkButton.IsEnabled = false;
                 
