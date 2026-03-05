@@ -15,6 +15,7 @@ using System.Xml.Linq;
 using System.Linq;
 using Microsoft.Win32;
 using System.Windows.Media.Animation;
+using System.Threading;
 
 namespace SmilezStrap
 {
@@ -45,9 +46,7 @@ namespace SmilezStrap
             // Hide the window initially
             this.Visibility = Visibility.Hidden;
             this.Opacity = 0;
-            
-            // Show splash screen first
-            ShowSplashScreen();
+            this.ShowInTaskbar = false;
             
             // Set window icon from project resources
             try
@@ -78,34 +77,30 @@ namespace SmilezStrap
             
             CheckForUpdatesOnStartup();
             LoadAboutContent();
+            
+            // Show splash screen after initialization
+            Dispatcher.BeginInvoke(new Action(() => ShowSplashScreen()));
         }
 
         private void ShowSplashScreen()
         {
             splashScreen = new SplashScreen(VERSION);
             splashScreen.Show();
+            splashScreen.Activate();
             
-            var timer = new System.Timers.Timer(2000);
+            // Create a timer to close splash and show main window
+            var timer = new System.Timers.Timer(2500); // 2.5 seconds total
+            timer.AutoReset = false;
             timer.Elapsed += (s, e) =>
             {
                 Dispatcher.Invoke(() =>
                 {
+                    // Start splash fade out
                     splashScreen?.BeginFadeOut();
                     
-                    // Show main window after splash fades
-                    var showTimer = new System.Timers.Timer(500);
-                    showTimer.Elapsed += (s2, e2) =>
-                    {
-                        Dispatcher.Invoke(() =>
-                        {
-                            ShowMainWindowWithAnimation();
-                        });
-                        showTimer.Stop();
-                        showTimer.Dispose();
-                    };
-                    showTimer.Start();
+                    // Show main window immediately after splash starts fading
+                    ShowMainWindowWithAnimation();
                 });
-                timer.Stop();
                 timer.Dispose();
             };
             timer.Start();
@@ -116,20 +111,24 @@ namespace SmilezStrap
             if (hasShownMainWindow) return;
             hasShownMainWindow = true;
             
+            // Show the window
+            this.ShowInTaskbar = true;
             this.Visibility = Visibility.Visible;
             this.Opacity = 1;
             
+            // Bring to front
             this.Activate();
             this.Topmost = true;
             this.Topmost = false;
             
+            // Play the open animation
             var storyboard = (Storyboard)FindResource("WindowOpenAnimation");
             storyboard.Begin(this);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // Keep this method even if empty - it's referenced in XAML
+            // This is intentionally empty - the splash screen handles the initial show
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
