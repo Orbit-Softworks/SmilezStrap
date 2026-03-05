@@ -40,13 +40,16 @@ namespace SmilezStrap
         
         public MainWindow()
         {
+            InitializeComponent();
+            
+            // Hide the window initially
             this.Visibility = Visibility.Hidden;
             this.Opacity = 0;
             
+            // Show splash screen first
             ShowSplashScreen();
             
-            InitializeComponent();
-            
+            // Set window icon from project resources
             try
             {
                 var iconUri = new Uri("pack://application:,,,/icon.ico", UriKind.RelativeOrAbsolute);
@@ -60,7 +63,7 @@ namespace SmilezStrap
             
             InitializeApp();
             
-            this.Loaded += async (s, e) =>
+            this.Loaded += (s, e) =>
             {
                 LoadSettings();
                 StartGlobalSettingsMonitor();
@@ -85,13 +88,22 @@ namespace SmilezStrap
             var timer = new System.Timers.Timer(2000);
             timer.Elapsed += (s, e) =>
             {
-                Dispatcher.Invoke(async () =>
+                Dispatcher.Invoke(() =>
                 {
                     splashScreen?.BeginFadeOut();
                     
-                    await Task.Delay(500);
-                    
-                    await ShowMainWindowWithAnimation();
+                    // Show main window after splash fades
+                    var showTimer = new System.Timers.Timer(500);
+                    showTimer.Elapsed += (s2, e2) =>
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            ShowMainWindowWithAnimation();
+                        });
+                        showTimer.Stop();
+                        showTimer.Dispose();
+                    };
+                    showTimer.Start();
                 });
                 timer.Stop();
                 timer.Dispose();
@@ -99,28 +111,28 @@ namespace SmilezStrap
             timer.Start();
         }
 
-        private async Task ShowMainWindowWithAnimation()
+        private void ShowMainWindowWithAnimation()
         {
             if (hasShownMainWindow) return;
             hasShownMainWindow = true;
             
             this.Visibility = Visibility.Visible;
-            this.Opacity = 0;
+            this.Opacity = 1;
             
             this.Activate();
             this.Topmost = true;
-            await Task.Delay(50);
             this.Topmost = false;
             
             var storyboard = (Storyboard)FindResource("WindowOpenAnimation");
             storyboard.Begin(this);
         }
 
-        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            // Keep this method even if empty - it's referenced in XAML
         }
 
-        private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
             
@@ -133,6 +145,7 @@ namespace SmilezStrap
             storyboard.Begin(this);
         }
 
+        // Rest of your methods remain exactly the same...
         private void StartGlobalSettingsMonitor()
         {
             try
@@ -154,9 +167,7 @@ namespace SmilezStrap
                 settingsSyncTimer.AutoReset = true;
                 settingsSyncTimer.Start();
             }
-            catch
-            {
-            }
+            catch { }
         }
 
         private void GlobalSettingsFile_Changed(object sender, FileSystemEventArgs e)
@@ -289,9 +300,7 @@ namespace SmilezStrap
                     });
                 }
             }
-            catch
-            {
-            }
+            catch { }
             finally
             {
                 isSyncing = false;
@@ -389,9 +398,7 @@ namespace SmilezStrap
                 
                 config.GraphicsQuality = graphicsQualityLevel;
             }
-            catch
-            {
-            }
+            catch { }
         }
 
         private void SetOrUpdateElement(XElement properties, string elementType, string attributeName, string value)
@@ -756,9 +763,7 @@ namespace SmilezStrap
                 string json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(configPath, json);
             }
-            catch
-            {
-            }
+            catch { }
         }
 
         private async void LoadAboutContent()
