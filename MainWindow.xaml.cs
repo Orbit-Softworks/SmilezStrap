@@ -35,20 +35,34 @@ namespace SmilezStrap
         private bool isSyncing = false;
         private bool isUpdatingUI = false;
         
+        private SplashScreen? splashScreen;
+        
         public MainWindow()
         {
+            // Show splash screen first
+            ShowSplashScreen();
+            
             InitializeComponent();
+            
+            // Set window icon from project resources
+            try
+            {
+                var iconUri = new Uri("pack://application:,,,/icon.ico", UriKind.RelativeOrAbsolute);
+                this.Icon = System.Windows.Media.Imaging.BitmapFrame.Create(iconUri);
+            }
+            catch { /* Icon will use default if not found */ }
+            
             VersionText.Text = $"v{VERSION}";
             
             httpClient.DefaultRequestHeaders.Add("User-Agent", "SmilezStrap");
             
             InitializeApp();
             
-            this.Loaded += (s, e) =>
+            this.Loaded += async (s, e) =>
             {
                 LoadSettings();
                 StartGlobalSettingsMonitor();
-                Window_Loaded(s, e);
+                await Window_Loaded(s, e);
             };
             
             this.Closing += Window_Closing;
@@ -62,8 +76,30 @@ namespace SmilezStrap
             LoadAboutContent();
         }
 
-        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        private void ShowSplashScreen()
         {
+            splashScreen = new SplashScreen(VERSION);
+            splashScreen.Show();
+            
+            // Start fading out after 1.5 seconds
+            var timer = new System.Timers.Timer(1500);
+            timer.Elapsed += (s, e) =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    splashScreen?.BeginFadeOut();
+                });
+                timer.Stop();
+                timer.Dispose();
+            };
+            timer.Start();
+        }
+
+        private async Task Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Small delay to ensure splash screen is fading
+            await Task.Delay(500);
+            
             var storyboard = (Storyboard)FindResource("WindowOpenAnimation");
             storyboard.Begin(this);
         }
@@ -548,28 +584,58 @@ namespace SmilezStrap
             newView.Visibility = Visibility.Visible;
             newTransform.Y = slideDistance * direction;
             
+            // Ultra smooth animations with exponential ease
             var currentAnimation = new DoubleAnimation
             {
                 From = 0,
                 To = -slideDistance * direction,
-                Duration = TimeSpan.FromMilliseconds(300),
-                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                Duration = TimeSpan.FromMilliseconds(450),
+                EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseInOut, Exponent = 3 }
             };
             
             var newAnimation = new DoubleAnimation
             {
                 From = slideDistance * direction,
                 To = 0,
-                Duration = TimeSpan.FromMilliseconds(300),
-                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                Duration = TimeSpan.FromMilliseconds(450),
+                EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseInOut, Exponent = 3 }
             };
             
+            // Add slight opacity animation for extra smoothness
+            var currentOpacityAnimation = new DoubleAnimation
+            {
+                From = 1,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+            
+            var newOpacityAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = 1,
+                Duration = TimeSpan.FromMilliseconds(300),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut },
+                BeginTime = TimeSpan.FromMilliseconds(150)
+            };
+            
+            if (currentView is UIElement currentElement && currentElement != newView)
+            {
+                currentElement.BeginAnimation(OpacityProperty, currentOpacityAnimation);
+            }
+            
+            newView.BeginAnimation(OpacityProperty, newOpacityAnimation);
             currentTransform.BeginAnimation(TranslateTransform.YProperty, currentAnimation);
             newTransform.BeginAnimation(TranslateTransform.YProperty, newAnimation);
             
-            await Task.Delay(300);
+            await Task.Delay(450);
             
-            currentView.Visibility = Visibility.Collapsed;
+            if (currentView is UIElement currentElement2 && currentElement2 != newView)
+            {
+                currentElement2.Opacity = 1;
+                currentElement2.Visibility = Visibility.Collapsed;
+            }
+            
             currentTransform.Y = 0;
             
             currentTabIndex = newTabIndex;
