@@ -15,7 +15,6 @@ using System.Xml.Linq;
 using System.Linq;
 using Microsoft.Win32;
 using System.Windows.Media.Animation;
-using System.Threading;
 
 namespace SmilezStrap
 {
@@ -37,18 +36,12 @@ namespace SmilezStrap
         private bool isUpdatingUI = false;
         
         private SplashScreen? splashScreen;
-        private bool hasShownMainWindow = false;
         
         public MainWindow()
         {
             InitializeComponent();
             
-            // Hide the window initially
-            this.Visibility = Visibility.Hidden;
-            this.Opacity = 0;
-            this.ShowInTaskbar = false;
-            
-            // Set window icon from project resources
+            // Set window icon
             try
             {
                 var iconUri = new Uri("pack://application:,,,/icon.ico", UriKind.RelativeOrAbsolute);
@@ -75,11 +68,14 @@ namespace SmilezStrap
             AboutView.Visibility = Visibility.Collapsed;
             UpdateMenuButtonState(HomeButton, SettingsButton, AboutButton);
             
-            CheckForUpdatesOnStartup();
+            _ = CheckForUpdatesOnStartup();
             LoadAboutContent();
             
-            // Show splash screen after initialization
-            Dispatcher.BeginInvoke(new Action(() => ShowSplashScreen()));
+            // Hide main window initially
+            this.Visibility = Visibility.Hidden;
+            
+            // Show splash screen
+            ShowSplashScreen();
         }
 
         private void ShowSplashScreen()
@@ -89,7 +85,7 @@ namespace SmilezStrap
             splashScreen.Activate();
             
             // Create a timer to close splash and show main window
-            var timer = new System.Timers.Timer(2500); // 2.5 seconds total
+            var timer = new System.Timers.Timer(2500);
             timer.AutoReset = false;
             timer.Elapsed += (s, e) =>
             {
@@ -98,22 +94,19 @@ namespace SmilezStrap
                     // Start splash fade out
                     splashScreen?.BeginFadeOut();
                     
-                    // Show main window immediately after splash starts fading
-                    ShowMainWindowWithAnimation();
+                    // Show main window
+                    ShowMainWindow();
                 });
                 timer.Dispose();
             };
             timer.Start();
         }
 
-        private void ShowMainWindowWithAnimation()
+        private void ShowMainWindow()
         {
-            if (hasShownMainWindow) return;
-            hasShownMainWindow = true;
-            
             // Show the window
-            this.ShowInTaskbar = true;
             this.Visibility = Visibility.Visible;
+            this.ShowInTaskbar = true;
             this.Opacity = 1;
             
             // Bring to front
@@ -128,7 +121,7 @@ namespace SmilezStrap
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // This is intentionally empty - the splash screen handles the initial show
+            // Handled by splash screen
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -144,7 +137,6 @@ namespace SmilezStrap
             storyboard.Begin(this);
         }
 
-        // Rest of your methods remain exactly the same...
         private void StartGlobalSettingsMonitor()
         {
             try
@@ -171,7 +163,7 @@ namespace SmilezStrap
 
         private void GlobalSettingsFile_Changed(object sender, FileSystemEventArgs e)
         {
-            Task.Delay(500).ContinueWith(_ => SyncSettingsFromRoblox());
+            _ = Task.Delay(500).ContinueWith(_ => SyncSettingsFromRoblox());
         }
 
         private void SyncSettingsFromRoblox()
@@ -521,7 +513,7 @@ namespace SmilezStrap
             }
         }
 
-        private async void CheckForUpdatesOnStartup()
+        private async Task CheckForUpdatesOnStartup()
         {
             if (config?.AutoCheckUpdates ?? true)
             {
@@ -560,7 +552,7 @@ namespace SmilezStrap
             DiscordPopup.Visibility = Visibility.Collapsed;
         }
 
-        private void HomeButton_Click(object? sender, RoutedEventArgs? e)
+        private void HomeButton_Click(object sender, RoutedEventArgs e)
         {
             AnimateToTab(0, HomeView, HomeViewTransform, HomeButton, SettingsButton, AboutButton);
         }
