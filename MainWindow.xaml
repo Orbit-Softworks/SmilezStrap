@@ -7,7 +7,7 @@
         MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
         Loaded="Window_Loaded"
         Closing="Window_Closing"
-        Icon="/icon.ico">
+        Icon="pack://application:,,,/icon.ico">
 
     <Window.Resources>
 
@@ -236,7 +236,7 @@
                     <Grid>
                         <Grid Height="70" VerticalAlignment="Top" Margin="0,20,0,0">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Image Source="/icon.ico" Width="24" Height="24" Margin="0,0,8,0"/>
+                                <Image Source="pack://application:,,,/icon.ico" Width="24" Height="24" Margin="0,0,8,0"/>
                                 <TextBlock Text="SmilezStrap" Foreground="White" FontSize="16" FontWeight="SemiBold"/>
                             </StackPanel>
                         </Grid>
@@ -353,7 +353,7 @@
                                 <Button Style="{StaticResource PrimaryButton}" Height="140"
                                         Background="Transparent" Click="LaunchRoblox_Click">
                                     <StackPanel VerticalAlignment="Center">
-                                        <Image Source="/icon.ico" Width="48" Height="48"
+                                        <Image Source="pack://application:,,,/icon.ico" Width="48" Height="48"
                                                HorizontalAlignment="Center" Margin="0,0,0,12"/>
                                         <TextBlock Text="Roblox" FontSize="16" FontWeight="SemiBold"
                                                    Foreground="White" HorizontalAlignment="Center"/>
@@ -366,7 +366,7 @@
                                 <Button Style="{StaticResource PrimaryButton}" Height="140"
                                         Background="Transparent" Click="LaunchStudio_Click">
                                     <StackPanel VerticalAlignment="Center">
-                                        <Image Source="/icon.ico" Width="48" Height="48"
+                                        <Image Source="pack://application:,,,/icon.ico" Width="48" Height="48"
                                                HorizontalAlignment="Center" Margin="0,0,0,12"/>
                                         <TextBlock Text="Studio" FontSize="16" FontWeight="SemiBold"
                                                    Foreground="White" HorizontalAlignment="Center"/>
