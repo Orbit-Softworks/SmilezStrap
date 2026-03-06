@@ -64,6 +64,7 @@ namespace SmilezStrap
             Closed += (s, e) => processMonitorTimer?.Stop();
         }
 
+        // Public methods for FFlag Injector to control progress
         public void SetDownloadInfo(string status, string detail)
         {
             Dispatcher.Invoke(() =>
@@ -185,7 +186,12 @@ namespace SmilezStrap
             try
             {
                 if (isFFlag)
-                    await LaunchFFlag();
+                {
+                    // For FFlag, we don't actually launch anything here
+                    // The MainWindow handles the download and launch
+                    // Just keep the window open until MainWindow closes it
+                    await Task.Delay(-1, cancellationTokenSource.Token);
+                }
                 else if (isStudio)
                     await LaunchStudio();
                 else
@@ -207,25 +213,6 @@ namespace SmilezStrap
             }
         }
 
-        private async Task LaunchFFlag()
-        {
-            var token = cancellationTokenSource.Token;
-            
-            UpdateStatus("Initializing FFlag Injector...", "", "Starting");
-            SetProgress(5);
-            await Task.Delay(300, token);
-            
-            UpdateStatus("Opening FFlag Injector...", "Loading modules", "Ready");
-            SetProgress(50);
-            await Task.Delay(500, token);
-            
-            SetProgress(100, "Done");
-            await Task.Delay(800);
-            ShowCompletion(true, "FFlag Injector is ready");
-            await Task.Delay(1500);
-            this.Close();
-        }
-
         private async Task LaunchRoblox()
         {
             var token = cancellationTokenSource.Token;
@@ -235,7 +222,6 @@ namespace SmilezStrap
             await Task.Delay(500, token);
             token.ThrowIfCancellationRequested();
 
-            // REMOVED: No longer checking for existing RobloxPlayer processes
             // Roblox Player will launch regardless of existing instances
 
             UpdateStatus("Checking for updates...", "Getting latest version", "Version check");
