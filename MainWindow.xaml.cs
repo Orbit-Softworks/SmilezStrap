@@ -248,19 +248,20 @@ namespace SmilezStrap
                     }
                 }
 
-                // Launch the executable
+                // Launch the executable as administrator
                 if (File.Exists(exePath))
                 {
                     Process.Start(new ProcessStartInfo
                     {
                         FileName = exePath,
                         UseShellExecute = true,
-                        WorkingDirectory = versionPath
+                        WorkingDirectory = versionPath,
+                        Verb = "runas" // This launches as administrator
                     });
                     
                     // Show success message
                     var result = MessageBox.Show(
-                        $"FFlag Injector v{latestVersion} launched successfully!\n\n" +
+                        $"FFlag Injector v{latestVersion} launched successfully with administrator privileges!\n\n" +
                         $"The injector is now running. Would you like to view the release page?",
                         "FFlag Injector",
                         MessageBoxButton.YesNo,
@@ -279,6 +280,15 @@ namespace SmilezStrap
                     MessageBox.Show($"Failed to find loader.exe after download.", 
                                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
+            catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+            {
+                // User cancelled the UAC prompt
+                MessageBox.Show("Administrator privileges are required to run the FFlag Injector.\n\n" +
+                               "The application will not launch without administrative rights.",
+                               "Administrator Required",
+                               MessageBoxButton.OK,
+                               MessageBoxImage.Warning);
             }
             catch (Exception ex)
             {
