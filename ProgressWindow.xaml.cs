@@ -19,6 +19,7 @@ namespace SmilezStrap
         private CancellationTokenSource cancellationTokenSource = null!;
         private bool isCompleted = false;
         private bool isStudio = false;
+        private bool isFFlag = false;
         private Config? config;
         private string? protocolUrl = null;
         private Process? robloxProcess = null;
@@ -27,7 +28,7 @@ namespace SmilezStrap
         private const string ROBLOX_DOWNLOAD_URL = "https://www.roblox.com/download/client?os=win";
         private const string STUDIO_DOWNLOAD_URL = "https://setup.rbxcdn.com/RobloxStudioInstaller.exe";
 
-        public ProgressWindow(bool launchStudio = false, Config? appConfig = null, string? gameUrl = null)
+        public ProgressWindow(bool launchStudio = false, Config? appConfig = null, string? gameUrl = null, bool launchFFlag = false)
         {
             InitializeComponent();
             
@@ -36,13 +37,19 @@ namespace SmilezStrap
             storyboard.Begin(this);
             
             isStudio = launchStudio;
+            isFFlag = launchFFlag;
             config = appConfig;
             protocolUrl = gameUrl;
             cancellationTokenSource = new CancellationTokenSource();
             
             httpClient.DefaultRequestHeaders.Add("User-Agent", "SmilezStrap");
             
-            if (isStudio)
+            if (isFFlag)
+            {
+                TitleText.Text = "FFlag Injector";
+                TitleIcon.Text = "🚩";
+            }
+            else if (isStudio)
             {
                 TitleText.Text = "Launching Studio";
                 TitleIcon.Text = "🛠️";
@@ -57,6 +64,43 @@ namespace SmilezStrap
             Closed += (s, e) => processMonitorTimer?.Stop();
         }
 
+        public void SetDownloadInfo(string status, string detail)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                StatusText.Text = status;
+                DetailText.Text = detail;
+                TitleText.Text = "FFlag Injector";
+                TitleIcon.Text = "🚩";
+            });
+        }
+
+        public void SetProgress(int percent)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                PercentText.Text = $"{percent}%";
+                var targetWidth = 390.0 * (percent / 100.0);
+                var animation = new DoubleAnimation
+                {
+                    To = targetWidth,
+                    Duration = TimeSpan.FromMilliseconds(200),
+                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+                };
+                ProgressBarFill.BeginAnimation(WidthProperty, animation);
+                
+                if (percent < 100 && percent > 0)
+                {
+                    int secondsRemaining = (int)((100 - percent) * 0.5);
+                    TimeEstimateText.Text = $"~{secondsRemaining}s remaining";
+                }
+                else
+                {
+                    TimeEstimateText.Text = "";
+                }
+            });
+        }
+
         private void UpdateStatus(string status, string detail = "", string stage = "")
         {
             Dispatcher.Invoke(() =>
@@ -65,6 +109,44 @@ namespace SmilezStrap
                 DetailText.Text = detail;
                 if (!string.IsNullOrEmpty(stage))
                     StageText.Text = stage;
+            });
+        }
+
+        private void ShowCompletion(bool success, string message = "")
+        {
+            Dispatcher.Invoke(() =>
+            {
+                isCompleted = true;
+                CancelButton.Visibility = Visibility.Collapsed;
+                CloseButton.Visibility = Visibility.Visible;
+                GlowBorder.BeginAnimation(OpacityProperty, null);
+                
+                if (success)
+                {
+                    if (isFFlag)
+                    {
+                        StatusText.Text = "FFlag Injector launched successfully!";
+                        TitleIcon.Text = "✅";
+                    }
+                    else if (isStudio)
+                    {
+                        StatusText.Text = "Studio launched successfully!";
+                        TitleIcon.Text = "✅";
+                    }
+                    else
+                    {
+                        StatusText.Text = "Roblox launched successfully!";
+                        TitleIcon.Text = "✅";
+                    }
+                    SetProgress(100, "Complete");
+                    DetailText.Text = message;
+                }
+                else
+                {
+                    StatusText.Text = "Error occurred";
+                    TitleIcon.Text = "❌";
+                    DetailText.Text = message;
+                }
             });
         }
 
@@ -98,44 +180,13 @@ namespace SmilezStrap
             });
         }
 
-        private void ShowCompletion(bool success, string message = "")
-        {
-            Dispatcher.Invoke(() =>
-            {
-                isCompleted = true;
-                CancelButton.Visibility = Visibility.Collapsed;
-                CloseButton.Visibility = Visibility.Visible;
-                GlowBorder.BeginAnimation(OpacityProperty, null);
-                
-                if (success)
-                {
-                    if (isStudio)
-                    {
-                        StatusText.Text = "Studio launched successfully!";
-                        TitleIcon.Text = "✅";
-                    }
-                    else
-                    {
-                        StatusText.Text = "Roblox launched successfully!";
-                        TitleIcon.Text = "✅";
-                    }
-                    SetProgress(100, "Complete");
-                    DetailText.Text = message;
-                }
-                else
-                {
-                    StatusText.Text = "Error occurred";
-                    TitleIcon.Text = "❌";
-                    DetailText.Text = message;
-                }
-            });
-        }
-
         private async Task StartLaunchProcess()
         {
             try
             {
-                if (isStudio)
+                if (isFFlag)
+                    await LaunchFFlag();
+                else if (isStudio)
                     await LaunchStudio();
                 else
                     await LaunchRoblox();
@@ -156,6 +207,25 @@ namespace SmilezStrap
             }
         }
 
+        private async Task LaunchFFlag()
+        {
+            var token = cancellationTokenSource.Token;
+            
+            UpdateStatus("Initializing FFlag Injector...", "", "Starting");
+            SetProgress(5);
+            await Task.Delay(300, token);
+            
+            UpdateStatus("Opening FFlag Injector...", "Loading modules", "Ready");
+            SetProgress(50);
+            await Task.Delay(500, token);
+            
+            SetProgress(100, "Done");
+            await Task.Delay(800);
+            ShowCompletion(true, "FFlag Injector is ready");
+            await Task.Delay(1500);
+            this.Close();
+        }
+
         private async Task LaunchRoblox()
         {
             var token = cancellationTokenSource.Token;
@@ -165,29 +235,8 @@ namespace SmilezStrap
             await Task.Delay(500, token);
             token.ThrowIfCancellationRequested();
 
-            var existingProcesses = Process.GetProcessesByName("RobloxPlayerBeta");
-            if (existingProcesses.Length > 0)
-            {
-                UpdateStatus("Roblox is already running...", "Activating existing window", "Running");
-                SetProgress(30);
-                await Task.Delay(300, token);
-                
-                foreach (var proc in existingProcesses)
-                {
-                    if (proc.MainWindowHandle != IntPtr.Zero)
-                    {
-                        SetForegroundWindow(proc.MainWindowHandle);
-                        break;
-                    }
-                }
-                
-                SetProgress(100, "Already Running");
-                await Task.Delay(800);
-                ShowCompletion(true, "Roblox was already running");
-                await Task.Delay(1500);
-                this.Close();
-                return;
-            }
+            // REMOVED: No longer checking for existing RobloxPlayer processes
+            // Roblox Player will launch regardless of existing instances
 
             UpdateStatus("Checking for updates...", "Getting latest version", "Version check");
             SetProgress(10);
@@ -311,6 +360,7 @@ namespace SmilezStrap
             await Task.Delay(500, token);
             token.ThrowIfCancellationRequested();
 
+            // Studio still checks for existing processes
             var existingProcesses = Process.GetProcessesByName("RobloxStudioBeta");
             if (existingProcesses.Length > 0)
             {
