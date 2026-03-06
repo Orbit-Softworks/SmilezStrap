@@ -61,9 +61,6 @@ namespace SmilezStrap
             {
                 LoadSettings();
                 StartGlobalSettingsMonitor();
-                
-                // Update quick action button texts
-                UpdateQuickActionButtons();
             };
             
             this.Closing += Window_Closing;
@@ -81,63 +78,6 @@ namespace SmilezStrap
             
             // Show splash screen
             ShowSplashScreen();
-        }
-
-        private void UpdateQuickActionButtons()
-        {
-            // Find the Quick Actions card and update buttons
-            // This assumes the buttons are named in XAML - if not, we'll need to modify
-            var stackPanel = FindChild<StackPanel>(HomeView, "QuickActionsStack");
-            if (stackPanel != null)
-            {
-                // Clear existing buttons
-                stackPanel.Children.Clear();
-                
-                // Add FFlag Injector button
-                var fflagButton = new Button
-                {
-                    Content = "🚩 FFlag Injector",
-                    Height = 28,
-                    FontSize = 11,
-                    Margin = new Thickness(0, 0, 0, 6),
-                    Style = (Style)FindResource("SecondaryButton"),
-                    Cursor = Cursors.Hand
-                };
-                fflagButton.Click += FFlagInjector_Click;
-                stackPanel.Children.Add(fflagButton);
-                
-                // Add Force Close button
-                var forceCloseButton = new Button
-                {
-                    Content = "🔄 Force Close Roblox",
-                    Height = 28,
-                    FontSize = 11,
-                    Style = (Style)FindResource("SecondaryButton"),
-                    Cursor = Cursors.Hand
-                };
-                forceCloseButton.Click += ForceCloseRoblox_Click;
-                stackPanel.Children.Add(forceCloseButton);
-            }
-        }
-
-        private T? FindChild<T>(DependencyObject parent, string childName) where T : FrameworkElement
-        {
-            if (parent == null) return null;
-            
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
-            {
-                var child = VisualTreeHelper.GetChild(parent, i);
-                
-                if (child is FrameworkElement element && element.Name == childName)
-                {
-                    return element as T;
-                }
-                
-                var result = FindChild<T>(child, childName);
-                if (result != null) return result;
-            }
-            
-            return null;
         }
 
         private async void FFlagInjector_Click(object sender, RoutedEventArgs e)
@@ -163,10 +103,18 @@ namespace SmilezStrap
 
         private async Task LaunchFFlagInjector()
         {
+            ProgressWindow? progressWindow = null;
+            
             try
             {
                 fflagPath = Path.Combine(appDataPath!, "FFlagInjector");
                 Directory.CreateDirectory(fflagPath);
+
+                // Show progress window immediately
+                progressWindow = new ProgressWindow(false, config, null, true);
+                progressWindow.SetDownloadInfo("Checking for FFlag Injector updates...", "Connecting to GitHub");
+                progressWindow.Show();
+                progressWindow.SetProgress(5);
 
                 // Get latest release info
                 var response = await httpClient.GetStringAsync($"https://api.github.com/repos/{FFLAG_GITHUB_REPO}/releases/latest");
@@ -174,6 +122,9 @@ namespace SmilezStrap
                 string latestVersion = releaseInfo.RootElement.GetProperty("tag_name").GetString()?.TrimStart('v') ?? "1.0.0";
                 string? downloadUrl = null;
                 string? exeFileName = null;
+
+                progressWindow.SetDownloadInfo("Checking for FFlag Injector updates...", $"Latest version: v{latestVersion}");
+                progressWindow.SetProgress(15);
 
                 // Find the loader.exe in assets
                 var assets = releaseInfo.RootElement.GetProperty("assets").EnumerateArray();
@@ -190,6 +141,7 @@ namespace SmilezStrap
 
                 if (string.IsNullOrEmpty(downloadUrl) || string.IsNullOrEmpty(exeFileName))
                 {
+                    progressWindow?.Close();
                     MessageBox.Show("Could not find loader.exe in the latest release.", 
                                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -215,16 +167,22 @@ namespace SmilezStrap
                     // Create version folder
                     Directory.CreateDirectory(versionPath);
                     
-                    // Show progress window for download
-                    var progressWindow = new ProgressWindow(false, config, null, true);
                     progressWindow.SetDownloadInfo("Downloading FFlag Injector...", $"Version v{latestVersion}");
-                    progressWindow.Show();
+                    progressWindow.SetProgress(25);
                     
                     try
                     {
-                        // Download loader.exe
-                        var downloadProgress = new Progress<int>(p => progressWindow.SetProgress(p));
+                        // Download loader.exe with progress
+                        var downloadProgress = new Progress<int>(p => 
+                        {
+                            // Scale progress from 25% to 85%
+                            int scaledProgress = 25 + (p * 60 / 100);
+                            progressWindow.SetProgress(scaledProgress);
+                        });
+                        
                         await DownloadFile(downloadUrl, exePath, downloadProgress);
+                        
+                        progressWindow.SetProgress(90);
                         
                         // Download home.png if it exists
                         foreach (var asset in assets)
@@ -239,18 +197,33 @@ namespace SmilezStrap
                             }
                         }
                         
-                        progressWindow.Close();
+                        progressWindow.SetDownloadInfo("Download complete!", "Preparing to launch...");
+                        progressWindow.SetProgress(95);
+                        await Task.Delay(500);
                     }
                     catch
                     {
-                        progressWindow.Close();
+                        progressWindow?.Close();
                         throw;
                     }
+                }
+                else
+                {
+                    progressWindow.SetDownloadInfo("FFlag Injector already installed", $"Version v{latestVersion} found");
+                    progressWindow.SetProgress(50);
+                    await Task.Delay(500);
                 }
 
                 // Launch the executable as administrator
                 if (File.Exists(exePath))
                 {
+                    progressWindow.SetDownloadInfo("Launching FFlag Injector...", "Requesting administrator privileges");
+                    progressWindow.SetProgress(100);
+                    await Task.Delay(500);
+                    
+                    // Close progress window before launching
+                    progressWindow?.Close();
+                    
                     Process.Start(new ProcessStartInfo
                     {
                         FileName = exePath,
@@ -259,30 +232,23 @@ namespace SmilezStrap
                         Verb = "runas" // This launches as administrator
                     });
                     
-                    // Show success message
-                    var result = MessageBox.Show(
-                        $"FFlag Injector v{latestVersion} launched successfully with administrator privileges!\n\n" +
-                        $"The injector is now running. Would you like to view the release page?",
+                    // Simple success message without release page prompt
+                    MessageBox.Show(
+                        $"FFlag Injector v{latestVersion} launched successfully with administrator privileges!",
                         "FFlag Injector",
-                        MessageBoxButton.YesNo,
+                        MessageBoxButton.OK,
                         MessageBoxImage.Information);
-                    
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        Process.Start(new ProcessStartInfo($"https://github.com/{FFLAG_GITHUB_REPO}/releases/tag/v{latestVersion}")
-                        {
-                            UseShellExecute = true
-                        });
-                    }
                 }
                 else
                 {
+                    progressWindow?.Close();
                     MessageBox.Show($"Failed to find loader.exe after download.", 
                                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
             {
+                progressWindow?.Close();
                 // User cancelled the UAC prompt
                 MessageBox.Show("Administrator privileges are required to run the FFlag Injector.\n\n" +
                                "The application will not launch without administrative rights.",
@@ -292,6 +258,7 @@ namespace SmilezStrap
             }
             catch (Exception ex)
             {
+                progressWindow?.Close();
                 MessageBox.Show($"Failed to launch FFlag Injector: {ex.Message}", 
                                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
