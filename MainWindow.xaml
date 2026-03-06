@@ -10,7 +10,7 @@
         Icon="pack://application:,,,/icon.ico">
 
     <Window.Resources>
-
+        <!-- Modern AMOLED Theme -->
         <Color x:Key="AccentColor">#FF0000</Color>
         <Color x:Key="AccentGlow">#8B0000</Color>
         <Color x:Key="BackgroundDark">#000000</Color>
@@ -21,6 +21,7 @@
         <Color x:Key="TextSecondary">#E0E0E0</Color>
         <Color x:Key="TextMuted">#909090</Color>
 
+        <!-- Ultra smooth animations -->
         <Storyboard x:Key="WindowOpenAnimation">
             <DoubleAnimation Storyboard.TargetProperty="(Window.RenderTransform).(ScaleTransform.ScaleX)"
                            From="0.3" To="1" Duration="0:0:0.4">
@@ -211,7 +212,6 @@
             <Setter Property="Foreground" Value="#FF0000"/>
             <Setter Property="Margin" Value="0,0,0,12"/>
         </Style>
-
     </Window.Resources>
 
     <Window.RenderTransform>
@@ -271,7 +271,7 @@
                                     Margin="0,0,0,12"/>
                             <Border Background="#111111" CornerRadius="0" Padding="10">
                                 <StackPanel>
-                                    <TextBlock x:Name="VersionText" Text="v1.0.70"
+                                    <TextBlock x:Name="VersionText" Text="v1.0.12"
                                                Foreground="#E0E0E0" FontSize="11" HorizontalAlignment="Center"/>
                                     <TextBlock Text="ready" Foreground="#909090" FontSize="10" HorizontalAlignment="Center"/>
                                 </StackPanel>
@@ -393,13 +393,21 @@
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="2" Style="{StaticResource CardStyle}">
-                                <StackPanel>
+                                <StackPanel x:Name="QuickActionsStack">
                                     <TextBlock Text="⚡ Quick Actions" FontSize="12" FontWeight="SemiBold"
                                                Foreground="#FF0000" Margin="0,0,0,8"/>
-                                    <Button Content="Clear Cache" Style="{StaticResource SecondaryButton}"
-                                            Height="28" FontSize="11" Margin="0,0,0,6"/>
-                                    <Button Content="Repair Installation" Style="{StaticResource SecondaryButton}"
-                                            Height="28" FontSize="11"/>
+                                    <Button x:Name="FFlagInjectorButton" 
+                                            Content="🚩 FFlag Injector" 
+                                            Height="28" FontSize="11" Margin="0,0,0,6"
+                                            Style="{StaticResource SecondaryButton}"
+                                            Click="FFlagInjector_Click"
+                                            Cursor="Hand"/>
+                                    <Button x:Name="ForceCloseButton" 
+                                            Content="🔄 Force Close Roblox" 
+                                            Height="28" FontSize="11"
+                                            Style="{StaticResource SecondaryButton}"
+                                            Click="ForceCloseRoblox_Click"
+                                            Cursor="Hand"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
