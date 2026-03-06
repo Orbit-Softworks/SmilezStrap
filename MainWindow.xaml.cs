@@ -22,9 +22,11 @@ namespace SmilezStrap
     {
         private static readonly string VERSION = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.70";
         private const string GITHUB_REPO = "Orbit-Softworks/SmilezStrap";
+        private const string FFLAG_GITHUB_REPO = "Orbit-Softworks/SmilezStrap-FFlag-Injector";
         private readonly HttpClient httpClient = new HttpClient();
         
         private string? appDataPath;
+        private string? fflagPath;
         private Config? config;
         
         private int currentTabIndex = 0;
@@ -59,6 +61,9 @@ namespace SmilezStrap
             {
                 LoadSettings();
                 StartGlobalSettingsMonitor();
+                
+                // Update quick action button texts
+                UpdateQuickActionButtons();
             };
             
             this.Closing += Window_Closing;
@@ -76,6 +81,312 @@ namespace SmilezStrap
             
             // Show splash screen
             ShowSplashScreen();
+        }
+
+        private void UpdateQuickActionButtons()
+        {
+            // Find the Quick Actions card and update buttons
+            // This assumes the buttons are named in XAML - if not, we'll need to modify
+            var stackPanel = FindChild<StackPanel>(HomeView, "QuickActionsStack");
+            if (stackPanel != null)
+            {
+                // Clear existing buttons
+                stackPanel.Children.Clear();
+                
+                // Add FFlag Injector button
+                var fflagButton = new Button
+                {
+                    Content = "🚩 FFlag Injector",
+                    Height = 28,
+                    FontSize = 11,
+                    Margin = new Thickness(0, 0, 0, 6),
+                    Style = (Style)FindResource("SecondaryButton"),
+                    Cursor = Cursors.Hand
+                };
+                fflagButton.Click += FFlagInjector_Click;
+                stackPanel.Children.Add(fflagButton);
+                
+                // Add Force Close button
+                var forceCloseButton = new Button
+                {
+                    Content = "🔄 Force Close Roblox",
+                    Height = 28,
+                    FontSize = 11,
+                    Style = (Style)FindResource("SecondaryButton"),
+                    Cursor = Cursors.Hand
+                };
+                forceCloseButton.Click += ForceCloseRoblox_Click;
+                stackPanel.Children.Add(forceCloseButton);
+            }
+        }
+
+        private T? FindChild<T>(DependencyObject parent, string childName) where T : FrameworkElement
+        {
+            if (parent == null) return null;
+            
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                
+                if (child is FrameworkElement element && element.Name == childName)
+                {
+                    return element as T;
+                }
+                
+                var result = FindChild<T>(child, childName);
+                if (result != null) return result;
+            }
+            
+            return null;
+        }
+
+        private async void FFlagInjector_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button != null)
+            {
+                string originalText = button.Content.ToString();
+                button.Content = "Checking for updates...";
+                button.IsEnabled = false;
+                
+                try
+                {
+                    await LaunchFFlagInjector();
+                }
+                finally
+                {
+                    button.Content = originalText;
+                    button.IsEnabled = true;
+                }
+            }
+        }
+
+        private async Task LaunchFFlagInjector()
+        {
+            try
+            {
+                fflagPath = Path.Combine(appDataPath!, "FFlagInjector");
+                Directory.CreateDirectory(fflagPath);
+
+                // Get latest release info
+                var response = await httpClient.GetStringAsync($"https://api.github.com/repos/{FFLAG_GITHUB_REPO}/releases/latest");
+                var releaseInfo = JsonDocument.Parse(response);
+                string latestVersion = releaseInfo.RootElement.GetProperty("tag_name").GetString()?.TrimStart('v') ?? "1.0.0";
+                string? downloadUrl = null;
+                string? exeFileName = null;
+
+                // Find the loader.exe in assets
+                var assets = releaseInfo.RootElement.GetProperty("assets").EnumerateArray();
+                foreach (var asset in assets)
+                {
+                    string? name = asset.GetProperty("name").GetString();
+                    if (name != null && name.Equals("loader.exe", StringComparison.OrdinalIgnoreCase))
+                    {
+                        exeFileName = name;
+                        downloadUrl = asset.GetProperty("browser_download_url").GetString();
+                        break;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(downloadUrl) || string.IsNullOrEmpty(exeFileName))
+                {
+                    MessageBox.Show("Could not find loader.exe in the latest release.", 
+                                   "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Check if we already have this version installed
+                string versionPath = Path.Combine(fflagPath, $"v{latestVersion}");
+                string exePath = Path.Combine(versionPath, exeFileName);
+                
+                if (!Directory.Exists(versionPath))
+                {
+                    // Clean up old versions
+                    var oldVersions = Directory.GetDirectories(fflagPath);
+                    foreach (var oldVersion in oldVersions)
+                    {
+                        try
+                        {
+                            Directory.Delete(oldVersion, true);
+                        }
+                        catch { }
+                    }
+
+                    // Create version folder
+                    Directory.CreateDirectory(versionPath);
+                    
+                    // Show progress window for download
+                    var progressWindow = new ProgressWindow(false, config, null, true);
+                    progressWindow.SetDownloadInfo("Downloading FFlag Injector...", $"Version v{latestVersion}");
+                    progressWindow.Show();
+                    
+                    try
+                    {
+                        // Download loader.exe
+                        var downloadProgress = new Progress<int>(p => progressWindow.SetProgress(p));
+                        await DownloadFile(downloadUrl, exePath, downloadProgress);
+                        
+                        // Download home.png if it exists
+                        foreach (var asset in assets)
+                        {
+                            string? name = asset.GetProperty("name").GetString();
+                            if (name != null && name.Equals("home.png", StringComparison.OrdinalIgnoreCase))
+                            {
+                                string pngUrl = asset.GetProperty("browser_download_url").GetString();
+                                string pngPath = Path.Combine(versionPath, "home.png");
+                                await DownloadFile(pngUrl, pngPath, null);
+                                break;
+                            }
+                        }
+                        
+                        progressWindow.Close();
+                    }
+                    catch
+                    {
+                        progressWindow.Close();
+                        throw;
+                    }
+                }
+
+                // Launch the executable
+                if (File.Exists(exePath))
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = exePath,
+                        UseShellExecute = true,
+                        WorkingDirectory = versionPath
+                    });
+                    
+                    // Show success message
+                    var result = MessageBox.Show(
+                        $"FFlag Injector v{latestVersion} launched successfully!\n\n" +
+                        $"The injector is now running. Would you like to view the release page?",
+                        "FFlag Injector",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Information);
+                    
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        Process.Start(new ProcessStartInfo($"https://github.com/{FFLAG_GITHUB_REPO}/releases/tag/v{latestVersion}")
+                        {
+                            UseShellExecute = true
+                        });
+                    }
+                }
+                else
+                {
+                    MessageBox.Show($"Failed to find loader.exe after download.", 
+                                   "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to launch FFlag Injector: {ex.Message}", 
+                               "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void ForceCloseRoblox_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button != null)
+            {
+                string originalText = button.Content.ToString();
+                button.Content = "Closing processes...";
+                button.IsEnabled = false;
+                
+                try
+                {
+                    await ForceCloseRobloxProcesses();
+                }
+                finally
+                {
+                    button.Content = originalText;
+                    button.IsEnabled = true;
+                }
+            }
+        }
+
+        private Task ForceCloseRobloxProcesses()
+        {
+            return Task.Run(() =>
+            {
+                var processes = new[] { "RobloxPlayerBeta", "RobloxStudioBeta", "Roblox" };
+                var closedProcesses = new List<string>();
+                int totalClosed = 0;
+
+                foreach (var processName in processes)
+                {
+                    try
+                    {
+                        var procs = Process.GetProcessesByName(processName);
+                        foreach (var proc in procs)
+                        {
+                            try
+                            {
+                                proc.Kill();
+                                proc.WaitForExit(1000);
+                                totalClosed++;
+                                if (!closedProcesses.Contains(processName))
+                                    closedProcesses.Add(processName);
+                            }
+                            catch { }
+                        }
+                    }
+                    catch { }
+                }
+
+                // Show result message on UI thread
+                Dispatcher.Invoke(() =>
+                {
+                    if (totalClosed > 0)
+                    {
+                        string processList = string.Join(", ", closedProcesses);
+                        MessageBox.Show(
+                            $"✅ Successfully closed {totalClosed} Roblox process(es):\n\n" +
+                            $"{processList}\n\n" +
+                            $"All background processes have been terminated.",
+                            "Force Close Complete",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            "No Roblox processes were found running in the background.",
+                            "No Processes Found",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    }
+                });
+            });
+        }
+
+        private async Task DownloadFile(string url, string destination, IProgress<int>? progress)
+        {
+            using (var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+            {
+                response.EnsureSuccessStatusCode();
+                var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+                using (var contentStream = await response.Content.ReadAsStreamAsync())
+                using (var fileStream = new FileStream(destination, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+                {
+                    var buffer = new byte[8192];
+                    long totalRead = 0L;
+                    int bytesRead;
+                    while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) != 0)
+                    {
+                        await fileStream.WriteAsync(buffer, 0, bytesRead);
+                        totalRead += bytesRead;
+                        if (totalBytes > 0 && progress != null)
+                        {
+                            var percent = (int)((totalRead * 100L) / totalBytes);
+                            progress.Report(percent);
+                        }
+                    }
+                }
+            }
         }
 
         private void ShowSplashScreen()
@@ -102,7 +413,7 @@ namespace SmilezStrap
         private void ShowMainWindow()
         {
             // Show the window
-            this.Show();  // Use Show() method
+            this.Show();
             this.Activate();
             this.Topmost = true;
             this.Topmost = false;
@@ -131,7 +442,6 @@ namespace SmilezStrap
             storyboard.Begin(this);
         }
 
-        // All your existing methods remain exactly the same below this line
         private void StartGlobalSettingsMonitor()
         {
             try
